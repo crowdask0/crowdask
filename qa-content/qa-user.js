@@ -1,5 +1,5 @@
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -28,7 +28,6 @@ function qa_submit_wall_post(elem, morelink)
 	
 	params.message=document.forms.wallpost.message.value;
 	params.handle=document.forms.wallpost.handle.value;
-	params.start=document.forms.wallpost.start.value;
 	params.code=document.forms.wallpost.code.value;
 	params.morelink=morelink ? 1 : 0;
 	

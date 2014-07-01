@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -67,7 +67,6 @@
 							$user['avatarblobid'], $user['avatarwidth'], $user['avatarheight'], qa_opt('avatar_users_size'), true)
 					).' '.$usershtml[$user['userid']],
 				'score' => qa_html(number_format($user['points'])),
-				'raw' => $user,
 			);
 	
 	} else

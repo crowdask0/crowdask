@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -270,9 +270,6 @@
 						$reloadpages=true;
 					}
 				}
-				
-				if (qa_clicked('dosaveview') && empty($errors) && !$isexternal)
-					qa_redirect($inslug);							
 			}
 			
 			if ($reloadpages) {
@@ -420,11 +417,6 @@
 					'label' => qa_lang_html(isset($editpage['pageid']) ? 'main/save_button' : ($isexternal ? 'admin/add_link_button' : 'admin/add_page_button')),
 				),
 				
-				'saveview' => array(
-					'tags' => 'name="dosaveview"',
-					'label' => qa_lang_html('admin/save_view_button'),
-				),
-				
 				'cancel' => array(
 					'tags' => 'name="docancel"',
 					'label' => qa_lang_html('main/cancel_button'),
@@ -462,9 +454,6 @@
 			unset($qa_content['form']['fields']['slug']);
 			unset($qa_content['form']['fields']['delete']);
 		}
-		
-		if ($isexternal || !isset($editpage['pageid']))
-			unset($qa_content['form']['buttons']['saveview']);
 		
 		$qa_content['focusid']='name';
 	

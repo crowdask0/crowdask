@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -511,8 +511,7 @@
 					$setnotify, $userid, $handle, $cookieid, $in['extra'], @$in['name'], $in['queued'], $in['silent']);
 	
 				if (qa_using_categories() && strcmp($in['categoryid'], $question['categoryid']))
-					qa_question_set_category($question, $in['categoryid'], $userid, $handle, $cookieid,
-						$answers, $commentsfollows, $closepost, $in['silent']);
+					qa_question_set_category($question, $in['categoryid'], $userid, $handle, $cookieid, $answers, $commentsfollows, $closepost);
 				
 				return true;
 			}

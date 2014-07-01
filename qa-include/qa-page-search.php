@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -106,6 +106,12 @@
 				$qdefaults['voteview']=false;
 				$qdefaults['answersview']=false;
 				$qdefaults['viewsview']=false;
+
+				$fakeoptions=$qdefaults;
+				$fakeoptions['whoview']=false;
+				$fakeoptions['whenview']=false;
+				$fakeoptions['whatview']=false;
+				
 				break;
 			}
 		
@@ -123,9 +129,6 @@
 			else
 				continue; // nothing to show here
 			
-			if (isset($qdefaults['blockwordspreg']))
-				$result['title']=qa_block_words_replace($result['title'], $qdefaults['blockwordspreg']);
-				
 			$fields['title']=qa_html($result['title']);
 			$fields['url']=qa_html($result['url']);
 			

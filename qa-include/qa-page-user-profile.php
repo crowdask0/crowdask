@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -37,12 +37,6 @@
 
 //	$handle, $userhtml are already set by qa-page-user.php - also $userid if using external user integration
 
-
-//	Redirect to 'My Account' page if button clicked
-
-	if (qa_clicked('doaccount'))
-		qa_redirect('account');
-		
 
 //	Find the user profile and questions and answers for this handle
 	
@@ -80,6 +74,8 @@
 			return include QA_INCLUDE_DIR.'qa-page-not-found.php';
 	
 		$userid=$useraccount['userid'];
+		$ismyuserpage=isset($loginuserid) && ($loginuserid==$userid);
+
 		$fieldseditable=false;
 		$maxlevelassign=null;
 		
@@ -119,7 +115,7 @@
 	//	This code is similar but not identical to that in to qq-page-user-wall.php
 		
 		$usermessages=array_slice($usermessages, 0, qa_opt('page_size_wall'));
-		$usermessages=qa_wall_posts_add_rules($usermessages, 0);
+		$usermessages=qa_wall_posts_add_rules($usermessages, 0, $loginuserid);
 		
 		foreach ($usermessages as $message)
 			if ($message['deleteable'] && qa_clicked('m'.$message['messageid'].'_dodelete')) {
@@ -185,12 +181,10 @@
 								qa_db_user_set($userid, 'email', $inemail);
 								qa_db_user_set_flag($userid, QA_USER_FLAGS_EMAIL_CONFIRMED, false);
 							}
-						
-						if (count($inprofile)) {
-							$filtermodules=qa_load_modules_with('filter', 'filter_profile');
-							foreach ($filtermodules as $filtermodule)
-								$filtermodule->filter_profile($inprofile, $errors, $useraccount, $userprofile);
-						}
+							
+						$filtermodules=qa_load_modules_with('filter', 'filter_profile');
+						foreach ($filtermodules as $filtermodule)
+							$filtermodule->filter_profile($inprofile, $errors, $useraccount, $userprofile);
 					
 						foreach ($userfields as $userfield)
 							if (!isset($errors[$userfield['fieldid']]))
@@ -714,15 +708,7 @@
 					'code' => qa_get_form_security_code('user-'.$handle),
 				);
 			}
-
-		} elseif (isset($loginuserid) && ($loginuserid==$userid))
-			$qa_content['form_profile']['buttons']=array(
-				'account' => array(
-					'tags' => 'name="doaccount"',
-					'label' => qa_lang_html('users/edit_profile'),
-				),
-			);
-			
+		}
 		
 		if (!is_array($qa_content['form_profile']['fields']['removeavatar']))
 			unset($qa_content['form_profile']['fields']['removeavatar']);
@@ -906,9 +892,6 @@
 				'style' => 'tall',
 				'hidden' => array(
 					'qa_click' => '', // for simulating clicks in Javascript
-					'handle' => qa_html($useraccount['handle']),
-					'start' => 0,
-					'code' => qa_get_form_security_code('wall-'.$useraccount['handle']),
 				),
 			),
 			
@@ -934,6 +917,9 @@
 					'label' => qa_lang_html('profile/post_wall_button'),
 				),
 			);
+				
+			$qa_content['message_list']['form']['hidden']['handle']=qa_html($useraccount['handle']);
+			$qa_content['message_list']['form']['hidden']['code']=qa_get_form_security_code('wall-'.$useraccount['handle']);
 		}
 
 		foreach ($usermessages as $message)
@@ -946,8 +932,7 @@
 	
 //	Sub menu for navigation in user pages
 
-	$qa_content['navigation']['sub']=qa_user_sub_navigation($handle, 'profile',
-		isset($loginuserid) && ($loginuserid==(QA_FINAL_EXTERNAL_USERS ? $userid : $useraccount['userid'])));
+	$qa_content['navigation']['sub']=qa_user_sub_navigation($handle, 'profile');
 
 
 	return $qa_content;

@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -93,11 +93,9 @@
 					qa_password_validate($inpassword)
 				);
 				
-				if (count($inprofile)) {
-					$filtermodules=qa_load_modules_with('filter', 'filter_profile');
-					foreach ($filtermodules as $filtermodule)
-						$filtermodule->filter_profile($inprofile, $errors, null, null);
-				}
+				$filtermodules=qa_load_modules_with('filter', 'filter_profile');
+				foreach ($filtermodules as $filtermodule)
+					$filtermodule->filter_profile($inprofile, $errors, null, null);
 				
 				if (qa_opt('captcha_on_register'))
 					qa_captcha_validate_post($errors);

@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -94,8 +94,7 @@
 
 //	Sub menu for navigation in user pages
 
-	$qa_content['navigation']['sub']=qa_user_sub_navigation($handle, 'activity',
-		isset($loginuserid) && ($loginuserid==(QA_FINAL_EXTERNAL_USERS ? $userid : $useraccount['userid'])));
+	$qa_content['navigation']['sub']=qa_user_sub_navigation($handle, 'activity');
 
 
 	return $qa_content;

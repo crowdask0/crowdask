@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -159,75 +159,57 @@
 				);
 			}		
 				
-			if ($format=='html') {
+			if ($format=='html')
 				$html=$content;
-				$text=$this->html_to_text($content);
-			} else {
-				$text=$content;
+			else
 				$html=qa_html($content, true);
-			}
 			
 			return array(
 				'tags' => 'name="'.$fieldname.'"',
-				'value' => qa_html($text),
+				'value' => qa_html($html),
 				'rows' => $rows,
-				'html_prefix' => '<input name="'.$fieldname.'_ckeditor_ok" id="'.$fieldname.'_ckeditor_ok" type="hidden" value="0"><input name="'.$fieldname.'_ckeditor_data" id="'.$fieldname.'_ckeditor_data" type="hidden" value="'.qa_html($html).'">',
 			);
 		}
 	
 	
 		function load_script($fieldname)
 		{
-			return "if (qa_ckeditor_".$fieldname."=CKEDITOR.replace(".qa_js($fieldname).", window.qa_wysiwyg_editor_config)) { qa_ckeditor_".$fieldname.".setData(document.getElementById(".qa_js($fieldname.'_ckeditor_data').").value); document.getElementById(".qa_js($fieldname.'_ckeditor_ok').").value=1; }";
+			return "qa_ckeditor_".$fieldname."=CKEDITOR.replace(".qa_js($fieldname).", window.qa_wysiwyg_editor_config);";
 		}
 
 		
 		function focus_script($fieldname)
 		{
-			return "if (qa_ckeditor_".$fieldname.") qa_ckeditor_".$fieldname.".focus();";
+			return "qa_ckeditor_".$fieldname.".focus();";
 		}
 
 		
 		function update_script($fieldname)
 		{
-			return "if (qa_ckeditor_".$fieldname.") qa_ckeditor_".$fieldname.".updateElement();";
+			return "qa_ckeditor_".$fieldname.".updateElement();";
 		}
 
 		
 		function read_post($fieldname)
 		{
-			if (qa_post_text($fieldname.'_ckeditor_ok')) { // CKEditor was loaded successfully
-				$html=qa_post_text($fieldname);
+			$html=qa_post_text($fieldname);
 			
-				$htmlformatting=preg_replace('/<\s*\/?\s*(br|p)\s*\/?\s*>/i', '', $html); // remove <p>, <br>, etc... since those are OK in text
+			$htmlformatting=preg_replace('/<\s*\/?\s*(br|p)\s*\/?\s*>/i', '', $html); // remove <p>, <br>, etc... since those are OK in text
 			
-				if (preg_match('/<.+>/', $htmlformatting)) // if still some other tags, it's worth keeping in HTML
-					return array(
-						'format' => 'html',
-						'content' => qa_sanitize_html($html, false, true), // qa_sanitize_html() is ESSENTIAL for security
-					);
+			if (preg_match('/<.+>/', $htmlformatting)) // if still some other tags, it's worth keeping in HTML
+				return array(
+					'format' => 'html',
+					'content' => qa_sanitize_html($html, false, true), // qa_sanitize_html() is ESSENTIAL for security
+				);
 			
-				else { // convert to text
-					$viewer=qa_load_module('viewer', '');
+			else { // convert to text
+				$viewer=qa_load_module('viewer', '');
 
-					return array(
-						'format' => '',
-						'content' => $this->html_to_text($html),
-					);
-				}
-
-			} else // CKEditor was not loaded so treat it as plain text
 				return array(
 					'format' => '',
-					'content' => qa_post_text($fieldname),
+					'content' => $viewer->get_text($html, 'html', array())
 				);
-		}
-		
-		function html_to_text($html)
-		{
-			$viewer=qa_load_module('viewer', '');
-
-			return $viewer->get_text($html, 'html', array());
+			}
 		}
 	
 	}

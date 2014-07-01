@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -227,7 +227,6 @@
 		'resume_mailing_button' => 'Resume Mailing',
 		'save_options_button' => 'Save Options',
 		'save_recalc_button' => 'Save and Recalculate',
-		'save_view_button' => 'Save and View',
 		'send_test_button' => 'Send Test to Me',
 		'show_defaults_button' => 'Show Defaults',
 		'show_on_register_form' => 'Show field on user registration form',

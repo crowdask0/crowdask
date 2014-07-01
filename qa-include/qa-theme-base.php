@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -1016,8 +1016,6 @@
 		{
 			$this->form_prefix($field, $style);
 			
-			$this->output_raw(@$field['html_prefix']);
-
 			switch (@$field['type']) {
 				case 'checkbox':
 					$this->form_checkbox($field, $style);
@@ -1046,9 +1044,9 @@
 				case 'image':
 					$this->form_image($field, $style);
 					break;
-					
+				
 				case 'custom':
-					$this->output_raw(@$field['html']);
+					echo @$field['html'];
 					break;
 				
 				default:
@@ -1058,8 +1056,6 @@
 						$this->form_text_single_row($field, $style);
 					break;
 			}	
-
-			$this->output_raw(@$field['html_suffix']);
 
 			$this->form_suffix($field, $style);
 		}

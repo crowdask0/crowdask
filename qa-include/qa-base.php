@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -25,8 +25,8 @@
 */
 
 	
-	define('QA_VERSION', '1.6.3'); // also used as suffix for .js and .css requests
-	define('QA_BUILD_DATE', '2014-01-19');
+	define('QA_VERSION', '1.6.2'); // also used as suffix for .js and .css requests
+	define('QA_BUILD_DATE', '2013-07-31');
 
 //	Execution section of this file - remainder contains function definitions
 
@@ -733,7 +733,7 @@
 		
 		$safe=htmLawed($html, array(
 			'safe' => 1,
-			'elements' => '*+embed+object-form',
+			'elements' => '*+embed+object',
 			'schemes' => 'href: aim, feed, file, ftp, gopher, http, https, irc, mailto, news, nntp, sftp, ssh, telnet; *:file, http, https; style: !; classid:clsid',
 			'keep_bad' => 0,
 			'anti_link_spam' => array('/.*/', ''),

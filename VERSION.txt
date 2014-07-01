@@ -1,1 +1,2 @@
-1.6.3
+CrowdAsk 1.0.0
+Question2Answer 1.6.2

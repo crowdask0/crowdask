@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -31,15 +31,16 @@
 	
 	
 	$tohandle=qa_post_text('handle');
-	$start=(int)qa_post_text('start');
 
-	$usermessages=qa_db_select_with_pending(qa_db_recent_messages_selectspec(null, null, $tohandle, false, null, $start));
-	$usermessages=qa_wall_posts_add_rules($usermessages, $start);
+	$usermessages=qa_db_select_with_pending(qa_db_recent_messages_selectspec(null, null, $tohandle, false));
+	$loginuserid=qa_get_logged_in_userid();
+	
+	$usermessages=qa_wall_posts_add_rules($usermessages, 0, $loginuserid);
 	
 	foreach ($usermessages as $message)
 		if (qa_clicked('m'.$message['messageid'].'_dodelete') && $message['deleteable'])
 			if (qa_check_form_security_code('wall-'.$tohandle, qa_post_text('code'))) {
-				qa_wall_delete_post(qa_get_logged_in_userid(), qa_get_logged_in_handle(), qa_cookie_get(), $message);
+				qa_wall_delete_post($loginuserid, qa_get_logged_in_handle(), qa_cookie_get(), $message);
 				echo "QA_AJAX_RESPONSE\n1\n";
 				return;
 			}

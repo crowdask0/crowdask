@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -587,7 +587,7 @@
 
 			array_push($showoptions, 'max_rate_ip_flags', 'max_rate_user_flags', 'max_rate_ip_uploads', 'max_rate_user_uploads');
 			
-			if (qa_opt('allow_private_messages') || qa_opt('allow_user_walls'))
+			if (qa_opt('allow_private_messages'))
 				array_push($showoptions, 'max_rate_ip_messages', 'max_rate_user_messages');
 			
 			$formstyle='wide';

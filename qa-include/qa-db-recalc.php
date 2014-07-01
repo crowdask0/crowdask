@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -234,8 +234,8 @@
 	{
 		if (QA_FINAL_EXTERNAL_USERS)
 			return qa_db_read_all_values(qa_db_query_sub(
-				'SELECT userid FROM ((SELECT DISTINCT userid FROM ^posts WHERE userid>=# ORDER BY userid LIMIT #) UNION (SELECT DISTINCT userid FROM ^uservotes WHERE userid>=# ORDER BY userid LIMIT #)) x ORDER BY userid LIMIT #',
-				$startuserid, $count, $startuserid, $count, $count
+				'(SELECT DISTINCT userid FROM ^posts WHERE userid>=# ORDER BY userid LIMIT #) UNION (SELECT DISTINCT userid FROM ^uservotes WHERE userid>=# ORDER BY userid LIMIT #)',
+				$startuserid, $count, $startuserid, $count
 			));
 		else
 			return qa_db_read_all_values(qa_db_query_sub(
@@ -298,14 +298,14 @@
 	}
 
 	
-	function qa_db_truncate_userpoints($lastuserid)
+	function qa_db_truncate_userpoints($firstuserid)
 /*
-	Remove any rows in the userpoints table where userid is greater than $lastuserid
+	Remove any rows in the userpoints table from $firstuserid upwards
 */
 	{
 		qa_db_query_sub(
-			'DELETE FROM ^userpoints WHERE userid>#',
-			$lastuserid
+			'DELETE FROM ^userpoints WHERE userid>=#',
+			$firstuserid
 		);
 	}
 	

@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -667,6 +667,12 @@
 				: qa_get_one_user_html(qa_get_logged_in_handle(), false)
 			);
 			
+			if (!QA_FINAL_EXTERNAL_USERS)
+				$qa_content['navigation']['user']['account']=array(
+					'url' => qa_path_html('account'),
+					'label' => qa_lang_html('main/nav_account'),
+				);
+				
 			$qa_content['navigation']['user']['updates']=array(
 				'url' => qa_path_html('updates'),
 				'label' => qa_lang_html('main/nav_updates'),

@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -68,7 +68,6 @@
 		
 		$codetolanguage=array( // 2-letter language codes as per ISO 639-1
 			'ar' => 'Arabic - العربية',
-			'az' => 'Azerbaijani - Azərbaycanca',
 			'bg' => 'Bulgarian - Български',
 			'bn' => 'Bengali - বাংলা',
 			'ca' => 'Catalan - Català',
@@ -95,7 +94,6 @@
 			'ko' => 'Korean - 한국어',
 			'ku-CKB' => 'Kurdish Central - کورد',
 			'lt' => 'Lithuanian - Lietuvių',
-			'lv' => 'Latvian - Latviešu',
 			'nl' => 'Dutch - Nederlands',
 			'no' => 'Norwegian - Norsk',
 			'pl' => 'Polish - Polski',
@@ -111,7 +109,6 @@
 			'tr' => 'Turkish - Türkçe',
 			'ug' => 'Uyghur - ئۇيغۇرچە',
 			'uk' => 'Ukrainian - Українська',
-			'uz' => 'Uzbek - ўзбек',
 			'vi' => 'Vietnamese - Tiếng Việt',
 			'zh-TW' => 'Chinese Traditional - 繁體中文',
 			'zh' => 'Chinese Simplified - 简体中文',

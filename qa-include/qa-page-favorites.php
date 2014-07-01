@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -150,7 +150,8 @@
 	
 	$qa_content['suggest_next']=qa_lang_html_sub('misc/suggest_favorites_add', '<span class="qa-favorite-image">&nbsp;</span>');
 	
-	$qa_content['navigation']['sub']=qa_user_sub_navigation(qa_get_logged_in_handle(), 'favorites', true);
+	if (!QA_FINAL_EXTERNAL_USERS)
+		$qa_content['navigation']['sub']=qa_account_sub_navigation();
 	
 	
 	return $qa_content;

@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -97,6 +97,7 @@
 		'min_length_x' => 'Please provide more information - at least ^ characters',
 		'max_upload_size_x' => 'Maximum upload size is ^',
 		'moved' => 'moved',
+		'nav_account' => 'My Account',
 		'nav_activity' => 'All Activity',
 		'nav_admin' => 'Admin',
 		'nav_ask' => 'Ask a Question',

@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -140,12 +140,8 @@
 			
 			$maxsize=qa_opt('tag_cloud_font_size');
 			$scale=qa_opt('tag_cloud_size_popular');
-			$blockwordspreg=qa_get_block_words_preg();
 			
 			foreach ($populartags as $tag => $count) {
-				if (count(qa_block_words_match_all($tag, $blockwordspreg)))
-					continue; // skip censored tags
-					
 				$size=number_format(($scale ? ($maxsize*$count/$maxcount) : $maxsize), 1);
 				
 				if (($size>=5) || !$scale)

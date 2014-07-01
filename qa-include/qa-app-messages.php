@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -117,28 +117,22 @@
 	}
 	
 	
-	function qa_wall_posts_add_rules($usermessages, $start)
+	function qa_wall_posts_add_rules($usermessages, $start, $userid)
 /*
 	Return the list of messages in $usermessages (as obtained via qa_db_recent_messages_selectspec()) with additional
-	fields indicating what actions can be performed on them by the current user. The messages were retrieved beginning
-	at offset $start in the database. Currently only 'deleteable' is relevant.
+	fields indicating what actions can be performed on them by user $userid. The messages are retrieved beginning at
+	offset $start in the database. Currently only 'deleteable' is relevant.
 */
 	{
 		if (qa_to_override(__FUNCTION__)) { $args=func_get_args(); return qa_call_override(__FUNCTION__, $args); }
 		
-		$userid=qa_get_logged_in_userid();
-		$userdeleteall=!(qa_user_permit_error('permit_hide_show') || qa_user_permit_error('permit_delete_hidden'));
-			// reuse "Hiding or showing any post" and "Deleting hidden posts" permissions
-		$userrecent=($start==0) && isset($userid); // User can delete all of the recent messages they wrote on someone's wall...
-		
+		$deleteable=($start==0) && isset($userid); // can delete all of the most recent messages...
+	
 		foreach ($usermessages as $key => $message) {
-			if ($message['fromuserid']!=$userid)
-				$userrecent=false; // ... until we come across one that they didn't write (which could be a reply)
+			if (($message['touserid']!=$userid) && ($message['fromuserid']!=$userid))
+				$deleteable=false; // ... until we come across one that doesn't involve me 
 		
-			$usermessages[$key]['deleteable'] =
-				($message['touserid']==$userid) || // if it's this user's wall
-				($userrecent && ($message['fromuserid']==$userid)) || // if it's one the user wrote that no one replied to yet
-				$userdeleteall; // if the user has enough permissions  to delete from any wall
+			$usermessages[$key]['deleteable']=$deleteable;
 		}
 		
 		return $usermessages;

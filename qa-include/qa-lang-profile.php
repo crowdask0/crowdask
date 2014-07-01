@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -37,7 +37,7 @@
 		'delete_wall_post_popup' => 'Delete this wall post',
 		'extra_privileges' => 'Extra privileges:',
 		'gave_out' => 'Gave out:',
-		'my_account_title' => 'My account',
+		'my_account_title' => 'My account details',
 		'no_answers_by_x' => 'No answers by ^',
 		'no_posts_by_x' => 'No posts by ^',
 		'no_questions_by_x' => 'No questions by ^',

@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer by Gideon Greenspan and contributors
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -48,7 +48,7 @@
 		$touseraccount['wallposts']++; // won't have been updated
 	
 		$usermessages=qa_db_select_with_pending(qa_db_recent_messages_selectspec(null, null, $touseraccount['userid'], true, qa_opt('page_size_wall')));
-		$usermessages=qa_wall_posts_add_rules($usermessages, 0);
+		$usermessages=qa_wall_posts_add_rules($usermessages, 0, $loginuserid);
 		
 		$themeclass=qa_load_theme_class(qa_get_site_theme(), 'wall', null, null);
 
