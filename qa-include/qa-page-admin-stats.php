@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -188,6 +188,16 @@
 			'users_voted' => array(
 				'label' => qa_lang_html('admin/users_voted'),
 				'value' => qa_html(number_format(qa_db_count_active_users('uservotes'))),
+			),
+				
+			'users_asked' => array(
+				'label' => 'Users who asked questions: ',
+				'value' => qa_html(number_format(qa_db_count_active_users('posts', 'TYPE = "Q"'))),
+			),
+			
+			'users_answered' => array(
+				'label' =>'Users who answered questions:',
+				'value' => qa_html(number_format(qa_db_count_active_users('posts', 'TYPE = "A"'))),
 			),
 		),
 	);

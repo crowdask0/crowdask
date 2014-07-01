@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -134,10 +134,15 @@
 				'label' => qa_lang('main/nav_most_recent'),
 				'url' => qa_path_html($request),
 			),
-			
+					
 			'hot' => array(
 				'label' => qa_lang('main/nav_hot'),
 				'url' => qa_path_html($request, array('sort' => 'hot')),
+			),
+				
+			'bounty' => array(
+				'label' => qa_lang('main/nav_most_bounty'),
+				'url' => qa_path_html($request,array('sort' => 'bounty')),
 			),
 			
 			'votes' => array(

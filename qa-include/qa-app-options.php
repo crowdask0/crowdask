@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -337,6 +337,12 @@
 			'points_q_voted_max_gain' => 10,
 			'points_q_voted_max_loss' => 3,
 			'points_select_a' => 3,
+			//by 
+			'min_points_to_assign_bounty' => 20,
+			'max_bounty' => 10,
+			'min_bounty' => 2,
+			'inc_bounty' => 2,
+				
 			'q_urls_title_length' => 50,
 			'show_a_c_links' => 1,
 			'show_a_form_immediate' => 'if_no_as',
@@ -679,6 +685,12 @@
 */
 	{
 		return strpos(qa_opt('tags_or_categories'), 'c')!==false;
+	}
+	
+	//by 
+	function qa_using_bounty()
+	{
+		return true;
 	}
 	
 	

@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -101,6 +101,9 @@
 		$rules['queued']=(substr($post['type'], 1)=='_QUEUED');
 		$rules['closed']=($post['basetype']=='Q') && (isset($post['closedbyid']) || (isset($post['selchildid']) && qa_opt('do_close_on_select')));
 
+        //by 
+        $rules['votes_closed']=($post['basetype']=='Q') && (isset($post['closedvotesbyid']) || (isset($post['selchildid']) && qa_opt('do_close_on_select')));
+
 	//	Cache some responses to the user permission checks
 	
 		$permiterror_post_q=qa_user_permit_error('permit_post_q', null, $userlevel); // don't check limits here, so we can show error message
@@ -158,9 +161,18 @@
 		$nothiddenbyother=!($post['hidden'] && !$rules['authorlast']);
 		
 		$rules['closeable']=qa_opt('allow_close_questions') && ($post['type']=='Q') && (!$rules['closed']) && !$permiterror_close_open;
+
+        //by 
+        $rules['votes_closeable']=qa_opt('allow_close_questions') && ($post['type']=='Q') && (!$rules['votes_closed']) && !$permiterror_close_open;
+
 		$rules['reopenable']=$rules['closed'] && isset($post['closedbyid']) && (!$permiterror_close_open) && (!$post['hidden']) &&
 			($notclosedbyother || !qa_user_permit_error('permit_close_q', null, $userlevel));
 			// cannot reopen a question if it's been hidden, or if it was closed by someone else and you don't have global closing permissions
+
+        //by 
+        $rules['votes_reopenable']=$rules['votes_closed'] && isset($post['closedvotesbyid']) && (!$permiterror_close_open) && (!$post['hidden']) &&
+            ($notclosedbyother || !qa_user_permit_error('permit_close_q', null, $userlevel));
+
 		$rules['moderatable']=$rules['queued'] && !$permiterror_moderate;
 		$rules['hideable']=(!$post['hidden']) && ($rules['isbyuser'] || !$rules['queued']) &&
 			(!$permiterror_hide_show) && ($notclosedbyother || !qa_user_permit_error('permit_hide_show', null, $userlevel));
@@ -286,12 +298,27 @@
 					'label' => qa_lang_html('question/close_button'),
 					'popup' => qa_lang_html('question/close_q_popup'),
 				);
-			
-			if ($question['reopenable'])
-				$buttons['reopen']=array(
-					'tags' => 'name="q_doreopen"'.$clicksuffix,
-					'label' => qa_lang_html('question/reopen_button'),
-				);
+
+            if ($question['reopenable'])
+                $buttons['reopen']=array(
+                    'tags' => 'name="q_doreopen"'.$clicksuffix,
+                    'label' => qa_lang_html('question/reopen_button'),
+                );
+
+            //by 
+            if($question['votes_closeable'])
+                $buttons['close-vote']=array(
+                    'tags' => 'name="q_doclose_v"',
+                    'label' => qa_lang_html('question/close_v_button'),
+                    'popup' => qa_lang_html('question/close_v_popup'),
+                );
+
+            //by 
+            if ($question['votes_reopenable'])
+                $buttons['reopen-vote']=array(
+                    'tags' => 'name="q_doreopen_v"'.$clicksuffix,
+                    'label' => qa_lang_html('question/votes_reopen_button'),
+                );
 			
 			if ($question['moderatable']) {
 				$buttons['approve']=array(
@@ -340,7 +367,7 @@
 			
 			if ($question['commentbutton'])
 				$buttons['comment']=array(
-					'tags' => 'name="q_docomment" onclick="return qa_toggle_element(\'c'.$questionid.'\')"',
+					'tags' => 'name="q_docomment" onclick="window.open(); return false;"',
 					'label' => qa_lang_html('question/comment_button'),
 					'popup' => qa_lang_html('question/comment_q_popup'),
 				);
@@ -394,7 +421,26 @@
 				'label' => qa_html(qa_opt('extra_field_label')),
 				'content' => qa_html(qa_block_words_replace($question['extra'], qa_get_block_words_preg())),
 			);
-
+		
+		//
+		if($question['bountyid'] != NULL){
+			
+			$bounty = qa_db_select_with_pending(qa_db_bounty_selectspec($question['bountyid']));
+			$q_view['bounty'] = $bounty['value'];
+			$assignedby = $bounty['assignedBy'];
+			$q_view['bountyAwarded'] = $question['bountyAwarded'];
+			
+			$owner = qa_db_select_with_pending(qa_db_user_account_selectspec($assignedby,true));
+			$q_view['owner_handle'] = $owner['handle'];			
+			
+			if($question['bountyAwarded'] == 1)
+			//bounty has been awarded
+			{
+				$receiver = qa_db_select_with_pending(qa_db_user_account_selectspec($bounty['assignedTo'],true));
+				$q_view['assignedTo'] =$receiver['handle'];
+			}
+		}
+		
 		
 		return $q_view;
 	}

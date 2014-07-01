@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -58,8 +58,23 @@
 			
 		case 'views':
 			$selectsort='views';
+			break;	
+		//
+		case 'bounty':
+			$selectsort='bounty';
 			break;
-		
+		case 'hour':
+			$selectsort = 'hour';
+			break;
+		case 'day':
+			$selectsort = 'day';
+			break;
+		case 'week':
+			$selectsort = 'week';
+			break;
+		case 'month':
+			$selectsort = 'month';
+			break;
 		default:
 			$selectsort='created';
 			break;
@@ -71,12 +86,20 @@
 		$countslugs ? qa_db_slugs_to_category_id_selectspec($categoryslugs) : null
 	);
 	
-	if ($countslugs) {
-		if (!isset($categoryid))
-			return include QA_INCLUDE_DIR.'qa-page-not-found.php';
+	$non_categorized_page = is_array($categoryslugs) && count($categoryslugs) > 0 && $categoryslugs[0] == 'non-categorized';
 	
-		$categorytitlehtml=qa_html($categories[$categoryid]['title']);
-		$nonetitle=qa_lang_html_sub('main/no_questions_in_x', $categorytitlehtml);
+	if ($countslugs) {
+		if ($non_categorized_page){
+			
+			$categorytitlehtml='Non-Categorized';
+			$nonetitle=qa_lang_html_sub('main/no_questions_in_x', $categorytitlehtml);
+			
+		}else if (!isset($categoryid)){
+			return include QA_INCLUDE_DIR.'qa-page-not-found.php';
+		}else{
+			$categorytitlehtml=qa_html($categories[$categoryid]['title']);
+			$nonetitle=qa_lang_html_sub('main/no_questions_in_x', $categorytitlehtml);
+		}
 
 	} else
 		$nonetitle=qa_lang_html('main/no_questions_found');
@@ -103,7 +126,22 @@
 		case 'views':
 			$sometitle=$countslugs ? qa_lang_html_sub('main/viewed_qs_in_x', $categorytitlehtml) : qa_lang_html('main/viewed_qs_title');
 			break;
-		
+		//
+		case 'bounty':
+			$sometitle=$countslugs ? qa_lang_html_sub('main/bounty_qs_in_x', $categorytitlehtml) : qa_lang_html('main/bounty_qs_title');
+			break;
+		case 'hour':
+			$sometitle = $countslugs?  qa_lang_sub('main/hour_qs_in_x', $categorytitlehtml):qa_lang_html('main/hour_qs_title');
+			break;
+		case 'day':
+			$sometitle = $countslugs?  qa_lang_sub('main/day_qs_in_x', $categorytitlehtml):qa_lang_html('main/day_qs_title');
+			break;
+		case 'week':
+			$sometitle = $countslugs?  qa_lang_sub('main/week_qs_in_x', $categorytitlehtml):qa_lang_html('main/week_qs_title');
+			break;
+		case 'month':
+			$sometitle = $countslugs?  qa_lang_sub('main/month_qs_in_x', $categorytitlehtml):qa_lang_html('main/month_qs_title');
+			break;
 		default:
 			$linkparams=array();
 			$sometitle=$countslugs ? qa_lang_html_sub('main/recent_qs_in_x', $categorytitlehtml) : qa_lang_html('main/recent_qs_title');
@@ -119,7 +157,7 @@
 		$questions, // questions
 		qa_opt('page_size_qs'), // questions per page
 		$start, // start offset
-		$countslugs ? $categories[$categoryid]['qcount'] : qa_opt('cache_qcount'), // total count
+		count($questions), // total count
 		$sometitle, // title if some questions
 		$nonetitle, // title if no questions
 		$categories, // categories for navigation
@@ -127,7 +165,9 @@
 		true, // show question counts in category navigation
 		$categorypathprefix, // prefix for links in category navigation
 		$feedpathprefix, // prefix for RSS feed paths
-		$countslugs ? qa_html_suggest_qs_tags(qa_using_tags()) : qa_html_suggest_ask($categoryid), // suggest what to do next
+		(count($questions)< qa_opt('page_size_qs') )?
+			qa_html_suggest_ask($categoryid)
+			:qa_html_suggest_qs_tags(qa_using_tags()), // suggest what to do next
 		$linkparams, // extra parameters for page links
 		$linkparams // category nav params
 	);
@@ -135,7 +175,6 @@
 	if (QA_ALLOW_UNINDEXED_QUERIES || !$countslugs)
 		$qa_content['navigation']['sub']=qa_qs_sub_navigation($sort, $categoryslugs);
 
-	
 	return $qa_content;
 
 

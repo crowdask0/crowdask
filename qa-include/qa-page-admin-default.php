@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -38,6 +38,8 @@
 	
 	$adminsection=strtolower(qa_request_part(1));
 	
+	//user level 
+	$level=qa_get_logged_in_level();
 	
 //	Get list of categories and all options
 	
@@ -348,7 +350,10 @@
 			
 		case 'layout':
 			$subtitle='admin/layout_title';
-			$showoptions=array('logo_show', 'logo_url', 'logo_width', 'logo_height', '', 'show_custom_sidebar', 'custom_sidebar', 'show_custom_sidepanel', 'custom_sidepanel', 'show_custom_header', 'custom_header', 'show_custom_footer', 'custom_footer', 'show_custom_in_head', 'custom_in_head', 'show_custom_home', 'custom_home_heading', 'custom_home_content', 'show_home_description', 'home_description', '');
+			if($level >= QA_USER_LEVEL_SUPER)
+				$showoptions=array('logo_show', 'logo_url', 'logo_width', 'logo_height', '', 'show_custom_sidebar', 'custom_sidebar', 'show_custom_sidepanel', 'custom_sidepanel', 'show_custom_header', 'custom_header', 'show_custom_footer', 'custom_footer', 'show_custom_in_head', 'custom_in_head', 'show_custom_home', 'custom_home_heading', 'custom_home_content', 'show_home_description', 'home_description', '');
+			else
+				$showoptions=array('logo_show', 'logo_url', 'show_custom_sidebar', 'custom_sidebar',  'show_home_description', 'home_description', '');
 			
 			$checkboxtodisplay=array(
 				'logo_url' => 'option_logo_show',
@@ -1130,6 +1135,7 @@
 				
 				case 'logo_width':
 				case 'logo_height':
+					
 					$optionfield['suffix']=qa_lang_html('admin/pixels');
 					break;
 					
@@ -1581,7 +1587,7 @@
 					$listhtml.='</li>';
 				}
 			
-			if (strlen($listhtml))
+			if (strlen($listhtml) && $level>=QA_USER_LEVEL_SUPER)
 				$qa_content['form']['fields']['plugins']=array(
 					'label' => qa_lang_html('admin/widgets_explanation'),
 					'style' => 'tall',
@@ -1596,14 +1602,16 @@
 			$placeoptions=qa_admin_place_options();
 			
 			foreach ($widgets as $widget) {
+				
 				$listhtml.='<li><b>'.qa_html($widget['title']).'</b> - '.
 					'<a href="'.qa_path_html('admin/layoutwidgets', array('edit' => $widget['widgetid'])).'">'.
 					@$placeoptions[$widget['place']].'</a>';
 			
 				$listhtml.='</li>';
+				
 			}
 			
-			if (strlen($listhtml))
+			if (strlen($listhtml) && $level>=QA_USER_LEVEL_SUPER)
 				$qa_content['form']['fields']['widgets']=array(
 					'label' => qa_lang_html('admin/active_widgets_explanation'),
 					'type' => 'custom',

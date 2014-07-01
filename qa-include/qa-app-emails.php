@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -152,6 +152,34 @@
 		}
 			
 		return $mailer->Send();
+	}
+	
+	/*
+	 * break emails string into email arrays
+	 */
+	function qa_email_arrays($emails)
+	{
+		if(empty($emails))
+			return null;
+		
+		$emails_arr = explode(';', $emails);
+		
+		for($i = 0; $i < count($emails_arr); $i++){
+			$emails_arr[$i] = trim($emails_arr[$i]);
+			
+			if(!validate_email_format($emails_arr[$i]))
+				return null;
+		}
+		
+		return $emails_arr;
+	}
+	
+	/*
+	 * check whether $string is a valid email format
+	 */
+	function validate_email_format($string)
+	{
+		return filter_var($string, FILTER_VALIDATE_EMAIL);
 	}
 
 

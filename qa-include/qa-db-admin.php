@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -87,7 +87,7 @@
 	}
 	
 
-	function qa_db_count_active_users($table)
+	function qa_db_count_active_users($table, $condition=null)
 /*
 	Return number of active users in database $table
 */
@@ -103,9 +103,17 @@
 				break;
 		}
 		
+		//
+		//carefully use this
+		if($condition != null)
+			return qa_db_read_one_value(qa_db_query_sub(
+					'SELECT COUNT(DISTINCT(userid)) FROM ^'.$table.' WHERE '.$condition
+			));
+		
 		return qa_db_read_one_value(qa_db_query_sub(
 			'SELECT COUNT(DISTINCT(userid)) FROM ^'.$table
 		));
+
 	}
 	
 	
@@ -301,6 +309,64 @@
 		
 		qa_db_categories_recalc_backpaths($categoryid); // may also require recalculation of its offspring's backpaths
 	}
+
+    //
+    function qa_db_brule_rename($bruleid, $name)
+    {
+        qa_db_query_sub
+        (
+            'UPDATE ^badgerules SET title=$ WHERE ruleid=#',
+            $name,$bruleid
+        );
+    }
+
+    //
+    function qa_db_brule_update_rule($bruleid,$rule)
+    {
+        qa_db_query_sub
+        (
+            'UPDATE ^badgerules SET content=$ WHERE ruleid=#',
+            $rule,$bruleid
+        );
+    }
+
+    //
+    function qa_db_brule_update_type($bruleid, $type)
+    {
+        qa_db_query_sub
+        (
+            'UPDATE ^badgerules SET type=$ WHERE ruleid=#',
+            $type,$bruleid
+        );
+    }
+
+    //
+    function qa_db_brule_update_desc($bruleid, $desc1)
+    {
+        qa_db_query_sub(
+            'UPDATE ^badgerules SET desc1=$ WHERE ruleid=#',
+            $desc1,$bruleid
+        );
+    }
+
+    //
+    function qa_db_brule_create($iname,$intype,$incontent,$indesc)
+        /*
+            Create a new badge rule
+        */
+    {
+        qa_db_query_sub(
+            'INSERT INTO ^badgerules (title, content, type, desc1) VALUES ($, $, $, $)',
+            $iname, $incontent, $intype, $indesc
+        );
+
+        $bruleid=qa_db_last_insert_id();
+
+        //TO-DO
+        //recalculate user badges
+
+        return $bruleid;
+    }
 	
 	
 	function qa_db_category_set_content($categoryid, $content)

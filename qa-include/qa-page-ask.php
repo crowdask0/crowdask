@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -57,7 +57,6 @@
 	
 	if (@$followanswer['basetype']!='A')
 		$followanswer=null;
-		
 
 //	Check for permission error
 
@@ -144,9 +143,27 @@
 			if (empty($errors)) {
 				$cookieid=isset($userid) ? qa_cookie_get() : qa_cookie_get_create(); // create a new cookie if necessary
 				
+				
 				$questionid=qa_question_create($followanswer, $userid, qa_get_logged_in_handle(), $cookieid,
 					$in['title'], $in['content'], $in['format'], $in['text'], qa_tags_to_tagstring($in['tags']),
 					$in['notify'], $in['email'], $in['categoryid'], $in['extra'], $in['queued'], $in['name']);
+				
+				//
+				//Add bounty if necessary
+				if(qa_post_text('useBounty') == true){
+					
+					$value = qa_post_text('bounty');
+					
+					if(!empty($value))
+					{
+					$bountyid = qa_bounty_create($questionid, $value, $userid);
+					
+					qa_update_bounty_for_question($questionid, $bountyid, 0);
+					
+					//deduct bounty points from user account
+					qa_db_points_update_ifuser($userid, 'bountyOut');
+					}
+				}
 				
 				qa_redirect(qa_q_request($questionid, $in['title'])); // our work is done here
 			}
@@ -205,6 +222,7 @@
 		),
 		
 		'hidden' => array(
+
 			'editor' => qa_html($editorname),
 			'code' => qa_get_form_security_code('ask'),
 			'doask' => '1',
@@ -233,6 +251,56 @@
 		
 		qa_array_insert($qa_content['form']['fields'], 'title', array('follows' => $field));
 	}
+	
+	if(qa_using_bounty()){
+        
+		$field = array(
+             'label' => 'Reward the selected answer with bonus points',
+             'tags' => 'name="useBounty" id="useBounty" onchange="show_bounty_field();"',
+             'type' => 'checkbox',
+             'value' => 0,
+        );
+        
+		qa_array_insert($qa_content['form']['fields'], 'content', array('useBounty'=>$field));
+		
+		$min_bounty = qa_opt('min_bounty') * qa_opt('points_multiple');
+		$max_bounty = qa_opt('max_bounty') * qa_opt('points_multiple');
+		$inc_bounty = qa_opt('inc_bounty') * qa_opt('points_multiple');
+		$min_points_to_assign_bounty = qa_opt('min_points_to_assign_bounty') * qa_opt('points_multiple');
+		
+		//get user level and points
+		$handle=qa_get_logged_in_handle();
+		$identifier=QA_FINAL_EXTERNAL_USERS ? $userid : $handle;
+		$userpoints = qa_db_select_with_pending(qa_db_user_points_selectspec($identifier));
+		$totalpoints = $userpoints['points'];
+		
+		//calculate available bounty options
+		require_once QA_INCLUDE_DIR.'qa-app-post-create.php';
+			
+		if($totalpoints - ($min_points_to_assign_bounty - $min_bounty) < $max_bounty)
+			$max_bounty = $totalpoints - ($min_points_to_assign_bounty - $min_bounty);
+		
+		$bountyOptions = qa_get_bounty_options($min_bounty,$max_bounty,$inc_bounty);
+		
+		$field=array(
+			'label' => "Bounties:",
+			'tags' => 'name="bounty" id="bounty" style="width:80px" ',
+			'type' => 'select',
+			'options' => $bountyOptions,
+			'suffix' => ($bountyOptions == array())? 'You do not have enough points.':'Available options.',
+		);
+		
+		if($bountyOptions == array())
+			$field['tags'] .= 'disabled';
+		
+		qa_set_up_bounty_field($qa_content, $field, "bounty");
+		
+		//insert bounty fields
+		qa_array_insert($qa_content['form']['fields'], 'content', array('bounty'=>$field));	
+		
+		//make sure bounty selection dropbox is shown or not according to the checkbox above it
+		$qa_content['script_onloads'][]='show_bounty_field();';
+	}
 		
 	if (qa_using_categories() && count($categories)) {
 		$field=array(
@@ -247,6 +315,8 @@
 			
 		qa_array_insert($qa_content['form']['fields'], 'content', array('category' => $field));
 	}
+	
+	
 	
 	if (qa_opt('extra_field_active')) {
 		$field=array(

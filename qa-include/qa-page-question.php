@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -253,8 +253,15 @@
 	if ($formtype=='q_close') {
 		$qa_content['q_view']['c_form']=qa_page_q_close_q_form($qa_content, $question, 'close', @$closein, @$closeerrors);
 		$jumptoanchor='close';
-	
-	} elseif ((($formtype=='c_add') && ($formpostid==$questionid)) || ($question['commentbutton'] && !$formrequested) ) { // ...to be added
+
+     /* Added by 
+      * render form controls if users click on the button
+      */
+	}elseif($formtype=='q_close_v'){
+        $qa_content['q_view']['c_form']=qa_page_q_close_v_q_form($qa_content, $question, 'close', @$closein, @$closeerrors);
+        $jumptoanchor='close';
+
+    }elseif ((($formtype=='c_add') && ($formpostid==$questionid)) || ($question['commentbutton'] && !$formrequested) ) { // ...to be added
 		$qa_content['q_view']['c_form']=qa_page_q_add_c_form($qa_content, $question, $question, 'c'.$questionid,
 			$captchareason, @$cnewin[$questionid], @$cnewerrors[$questionid], $formtype=='c_add');
 		

@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -65,7 +65,7 @@
 		'custom_home_content' => 'Home page content - HTML allowed:',
 		'custom_home_heading' => 'Home page heading:',
 		'default_privacy' => 'Privacy: Your email address will not be shared or sold to third parties.',
-		'default_sidebar' => "Welcome to ^, where you can ask questions and receive answers from other members of the community.",
+		'default_sidebar' => "Some Welcome Messages Here.",
 		'default_subject' => 'A message from ^',
 		'default_suffix' => 'Q&A',
 		'do_ask_check_qs' => 'Check for similar questions when asking:',
@@ -222,6 +222,12 @@
 		'points_vote_down_q' => 'Voting down a question:',
 		'points_vote_up_a' => 'Voting up an answer:',
 		'points_vote_up_q' => 'Voting up a question:',
+		//by 
+		'min_points_to_assign_bounty' => 'Minimal points requirement for creating a bounty:',
+		'max_bounty' => 'Maximal bounty points:',
+		'min_bounty' => 'Minimal bounty points:',
+		'inc_bounty' => 'Increament of bounty points:',
+			
 		'q_urls_remove_accents' => 'Remove accents from question URLs:',
 		'q_urls_title_length' => 'Question title length in URLs:',
 		'register_notify_admin' => 'Email me when a new user registers:',

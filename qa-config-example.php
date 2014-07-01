@@ -1,9 +1,8 @@
 <?php
 
 /*
-	The systems are further developed based on  Question2Answer by Gideon Greenspan.
+	Crowdask is further developed based on  Question2Answer by Gideon Greenspan.
 
-	
 	File: qa-config-example.php
 	Version: See define()s at top of qa-include/qa-base.php
 	Description: After renaming, use this to set up database details and other stuff

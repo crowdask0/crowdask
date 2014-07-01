@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -86,18 +86,26 @@
 		if (
 			isset($loginuserid) &&
 			($loginuserid!=$userid) &&
-			(($loginlevel>=QA_USER_LEVEL_SUPER) || ($loginlevel>$maxuserlevel)) &&
+			(($loginlevel>=QA_USER_LEVEL_SUPER) || ($loginlevel>$maxuserlevel) ||
+                (($loginlevel == QA_USER_LEVEL_MODERATOR)&&($maxuserlevel == QA_USER_LEVEL_MODERATOR && $useraccount['level'] < QA_USER_LEVEL_MODERATOR))
+            ) &&
 			(!qa_user_permit_error())
-		) { // can't change self - or someone on your level (or higher, obviously) unless you're a super admin
+		) {
+		/* Changed by :
+		* By default, a user could only have control on users below its user level (except Moderator)
+		* A moderator could be able to edit another moderator
+		*/
 		
 			if ($loginlevel>=QA_USER_LEVEL_SUPER)
 				$maxlevelassign=QA_USER_LEVEL_SUPER;
 
+			// May 24, 2014
+			// Administrator could promote another user to administrator
 			elseif ($loginlevel>=QA_USER_LEVEL_ADMIN)
-				$maxlevelassign=QA_USER_LEVEL_MODERATOR;
+				$maxlevelassign=QA_USER_LEVEL_ADMIN;
 
 			elseif ($loginlevel>=QA_USER_LEVEL_MODERATOR)
-				$maxlevelassign=QA_USER_LEVEL_EXPERT;
+				$maxlevelassign=QA_USER_LEVEL_MODERATOR;
 				
 			if ($loginlevel>=QA_USER_LEVEL_ADMIN)
 				$fieldseditable=true;
@@ -108,6 +116,7 @@
 		
 		$approvebutton=isset($maxlevelassign) && ($useraccount['level']<QA_USER_LEVEL_APPROVED) && ($maxlevelassign>=QA_USER_LEVEL_APPROVED) && (!($useraccount['flags'] & QA_USER_FLAGS_USER_BLOCKED)) && qa_opt('moderate_users');
 		$usereditbutton=$fieldseditable || isset($maxlevelassign);
+
 		$userediting=$usereditbutton && (qa_get_state()=='edit');
 		
 		$wallposterrorhtml=qa_wall_error_html($loginuserid, $useraccount['userid'], $useraccount['flags']);
@@ -202,7 +211,32 @@
 					if (isset($maxlevelassign)) {
 						$inlevel=min($maxlevelassign, (int)qa_post_text('level')); // constrain based on maximum permitted to prevent simple browser-based attack
 						if ($inlevel!=$useraccount['level'])
+                        {
 							qa_set_user_level($userid, $useraccount['handle'], $inlevel, $useraccount['level']);
+                            /* Changed by :
+                             * Our user level system is based on points system from basic users to editor users
+                             * By brute-force setting user points to the threshold of that level,
+                             * We compensate the points change by changing the bonus points
+                             */
+
+                            /*
+                             * Only the following levels of users are based on points system
+                             */
+                            $mapLevelToPoints=array(
+                                QA_USER_LEVEL_BASIC => QA_USER_BASIC_POINTS,
+                                QA_USER_LEVEL_APPROVED => QA_USER_APPROVED_POINTS,
+                                QA_USER_LEVEL_EXPERT => QA_USER_EXPERT_POINTS,
+                                QA_USER_LEVEL_EDITOR => QA_USER_EDITOR_POINTS,
+                            );
+
+                            if(array_key_exists($inlevel, $mapLevelToPoints)) //if the targeted level is among the above list
+                            {
+                                require_once QA_INCLUDE_DIR.'qa-db-points.php';
+                                $bonus_increasement = $mapLevelToPoints[$inlevel] - $userpoints['points'];//compensate the points change
+                                qa_db_points_set_bonus($userid, $userpoints['bonus'] + $bonus_increasement);
+                                qa_db_points_update_ifuser($userid, null);
+                            }
+                        }
 						
 						if (qa_using_categories()) {
 							$inuserlevels=array();
@@ -783,6 +817,15 @@
 		
 	} else
 		unset($qa_content['form_activity']['fields']['bonus']);
+
+    //Added by 
+    //Moderator or above is not included in automatic pointing system
+    //Do not display their points
+    if($useraccount['level'] >= QA_USER_LEVEL_MODERATOR){
+        unset($qa_content['form_activity']['fields']['bonus']);
+        unset($qa_content['form_activity']['fields']['points']);
+        unset($qa_content['form_activity']['buttons']['setbonus']);
+    }
 	
 	if (!isset($qa_content['form_activity']['fields']['title']['value']))
 		unset($qa_content['form_activity']['fields']['title']);
@@ -854,9 +897,10 @@
 			'value' => $votegotvalue,
 			'id' => 'votegot',
 		);
+
 	}
 	
-	if (@$userpoints['points'])
+	if (isset($qa_content['form_activity']['fields']['points']) && @$userpoints['points'])
 		$qa_content['form_activity']['fields']['points']['value'].=
 			qa_lang_html_sub('profile/ranked_x', '<span class="qa-uf-user-rank">'.number_format($userrank).'</span>');
 	
@@ -870,8 +914,88 @@
 			? qa_lang_html_sub('profile/1_chosen_as_best', '<span class="qa-uf-user-a-selecteds">1</span>', '1')
 			: qa_lang_html_sub('profile/x_chosen_as_best', '<span class="qa-uf-user-a-selecteds">'.number_format($userpoints['aselecteds']).'</span>');
 
+    //by 
+    //if(isset($show_badge)&&$show_badge == 1)
+    {
 
-	
+        //get the list of badge rules
+        $brules = qa_db_select_with_pending(qa_db_brule_nav_selectspec());
+        $badges = qa_calc_user_badge($userpoints,$brules);
+
+        $badges_html = '<table><tbody>';
+
+        foreach($badges as $badge){
+
+
+            $badges_html .= '<tr><td>'.
+                "<span class='badge-container'>
+              <a class='badge' title='".$badge['desc1']."' href='".qa_path_html('badges',null,null,null,str_replace(' ', '', $badge['title']))."'>
+              <span class='";
+
+                switch($badge['type']){
+                   case 'GOLD': $badges_html .= "badge1"; break;
+                   case 'SILVER': $badges_html .= "badge2"; break;
+                   case 'BRONZE': $badges_html .= "badge3"; break;
+                };
+
+                $badges_html .= "'></span>".
+                    $badge['title']
+                ."</a>
+              </span>".
+                '</td></tr>';
+        }
+        $badges_html .= '</tbody></table>';
+
+        $qa_content['form_activity']['fields']['badges']=array(
+            'type' => 'static',
+            'label' => qa_lang_html('profile/badges'),
+            'value' => $badges_html,
+            'id' => 'badges',
+        );
+    }
+
+    //
+    function qa_calc_user_badge($userpoints, $brules)
+    {
+        $badges = array();
+        foreach($brules as $brule){
+        	
+        	$clauses = qa_brule_long_def($brule['content']);
+        	
+        	if($clauses == false || empty($clauses))
+        		continue;
+        	
+        	foreach ($clauses as $clause)
+        	{
+        		$flag = true;
+	            $tokens = qa_brule_tokens($clause);
+	            
+	            if($tokens == false || empty($tokens))
+	            {
+	                break;
+	            }
+	           
+	            foreach($tokens as $token){
+	                $exp = strval(@$userpoints[$token['var']]) . $token['operator'] . $token['value'];
+	                if(eval('return '.$exp.';') == false)
+	                {
+	                	$flag = false;
+	                	break;
+	                }      
+	            }
+	            
+	        	if($flag == true){
+	        		array_push($badges,$brule);  
+	        		break;
+	        	}  	
+        	}
+        	
+
+        }
+        return $badges;
+    }
+
+
 //	For plugin layers to access
 
 	$qa_content['raw']['userid']=$userid;

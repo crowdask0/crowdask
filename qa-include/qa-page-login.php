@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -103,11 +103,32 @@
 //	Prepare content for theme
 	
 	$qa_content=qa_content_prepare();
+	
+	$loginmodules=qa_load_modules_with('login', 'login_html');
 
+	foreach ($loginmodules as $module) {
+		ob_start();
+		$module->login_html(qa_opt('site_url').qa_get('to'), 'login');
+		$html=ob_get_clean();
+		
+		if (strlen($html))
+			@$qa_content['custom'].=$html;
+	}
+	
+	@$qa_content['custom'].="<br> </br>";
+	@$qa_content['custom'].="<br> </br>";
+	
+	//site users login
+	
+	//header for site users login
+	@$qa_content['custom'].='<br>';
+	@$qa_content['custom'].='<h2>CrowdAsk Account Login</h2>';
+	@$qa_content['custom'].='<p></p>';
+		
 	$qa_content['title']=qa_lang_html('users/login_title');
 	
 	$qa_content['error']=@$pageerror;
-
+	
 	if (empty($inemailhandle) || isset($errors['emailhandle']))
 		$forgotpath=qa_path('forgot');
 	else
@@ -116,61 +137,51 @@
 	$forgothtml='<a href="'.qa_html($forgotpath).'">'.qa_lang_html('users/forgot_link').'</a>';
 	
 	$qa_content['form']=array(
-		'tags' => 'method="post" action="'.qa_self_html().'"',
-		
-		'style' => 'tall',
-		
-		'ok' => $passwordsent ? qa_lang_html('users/password_sent') : ($emailexists ? qa_lang_html('users/email_exists') : null),
-		
-		'fields' => array(
-			'email_handle' => array(
-				'label' => qa_opt('allow_login_email_only') ? qa_lang_html('users/email_label') : qa_lang_html('users/email_handle_label'),
-				'tags' => 'name="emailhandle" id="emailhandle"',
-				'value' => qa_html(@$inemailhandle),
-				'error' => qa_html(@$errors['emailhandle']),
+			'tags' => 'method="post" action="'.qa_self_html().'"',
+	
+			'style' => 'tall',
+	
+			'ok' => $passwordsent ? qa_lang_html('users/password_sent') : ($emailexists ? qa_lang_html('users/email_exists') : null),
+	
+			'fields' => array(
+					'email_handle' => array(
+							'label' => qa_opt('allow_login_email_only') ? qa_lang_html('users/email_label') : qa_lang_html('users/email_handle_label'),
+							'tags' => 'name="emailhandle" id="emailhandle"',
+							'value' => qa_html(@$inemailhandle),
+							'error' => qa_html(@$errors['emailhandle']),
+					),
+						
+					'password' => array(
+							'type' => 'password',
+							'label' => qa_lang_html('users/password_label'),
+							'tags' => 'name="password" id="password"',
+							'value' => qa_html(@$inpassword),
+							'error' => empty($errors['password']) ? '' : (qa_html(@$errors['password']).' - '.$forgothtml),
+							'note' => $passwordsent ? qa_lang_html('users/password_sent') : $forgothtml,
+					),
+						
+					'remember' => array(
+							'type' => 'checkbox',
+							'label' => qa_lang_html('users/remember_label'),
+							'tags' => 'name="remember"',
+							'value' => @$inremember ? true : false,
+					),
 			),
-			
-			'password' => array(
-				'type' => 'password',
-				'label' => qa_lang_html('users/password_label'),
-				'tags' => 'name="password" id="password"',
-				'value' => qa_html(@$inpassword),
-				'error' => empty($errors['password']) ? '' : (qa_html(@$errors['password']).' - '.$forgothtml),
-				'note' => $passwordsent ? qa_lang_html('users/password_sent') : $forgothtml,
+	
+			'buttons' => array(
+					'login' => array(
+							'label' => qa_lang_html('users/login_button'),
+					),
 			),
-			
-			'remember' => array(
-				'type' => 'checkbox',
-				'label' => qa_lang_html('users/remember_label'),
-				'tags' => 'name="remember"',
-				'value' => @$inremember ? true : false,
+	
+			'hidden' => array(
+					'dologin' => '1',
+					'code' => qa_get_form_security_code('login'),
 			),
-		),
-		
-		'buttons' => array(
-			'login' => array(
-				'label' => qa_lang_html('users/login_button'),
-			),
-		),
-		
-		'hidden' => array(
-			'dologin' => '1',
-			'code' => qa_get_form_security_code('login'),
-		),
 	);
-	
-	$loginmodules=qa_load_modules_with('login', 'login_html');
-	
-	foreach ($loginmodules as $module) {
-		ob_start();
-		$module->login_html(qa_opt('site_url').qa_get('to'), 'login');
-		$html=ob_get_clean();
-		
-		if (strlen($html))
-			@$qa_content['custom'].='<br>'.$html.'<br>';
-	}
 
-	$qa_content['focusid']=(isset($inemailhandle) && !isset($errors['emailhandle'])) ? 'password' : 'emailhandle';
+	if(isset($inemailhandle) && !isset($errors['emailhandle']))
+		$qa_content['focusid']= 'password';
 	
 
 	return $qa_content;

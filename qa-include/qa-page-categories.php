@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -55,6 +55,8 @@
 	function qa_category_nav_to_browse(&$navigation, $categories, $categoryid, $favoritemap)
 	{
 		foreach ($navigation as $key => $navlink) {
+			if($key == 'non-categorized')
+				continue;
 			$category=$categories[$navlink['categoryid']];
 			
 			if (!$category['childcount'])

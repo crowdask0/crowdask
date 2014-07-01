@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -66,14 +66,27 @@
 		'claim_button' => 'I wrote this',
 		'clear_flags_button' => 'clear flags',
 		'clear_flags_popup' => 'Remove flags by all users',
-		'close_button' => 'close',
+		'close_button' => 'close answers',
+        /* Added by 
+        * Add a button to close new votes
+        */
+        'close_v_button' => 'close votes',
 		'close_duplicate_error' => 'The duplicate question could not be found - please try entering the number from a different question URL, e.g. 123.',
 		'close_duplicate' => 'This is a duplicate of another question',
-		'close_form_button' => 'Close question',
-		'close_form_title' => 'Close this question',
+		'close_form_button' => 'Close',
+		'close_form_title' => 'Close answers of this question',
+        /* Added by 
+         * Add a button to close new votes
+         */
+        'close_v_form_title' => 'Close votes of this question',
+
 		'close_original_note' => 'You can also enter the question number from the URL, e.g. 123.',
 		'close_original_title' => 'URL of the original question:',
 		'close_q_popup' => 'Close this question to any new answers',
+        /* Added by 
+        * Add a button to close new votes
+        */
+        'close_v_popup' => 'Close this question to any new votes',
 		'close_reason_title' => 'Reason for closing this question:',
 		'closed_as_duplicate' => 'closed as a duplicate of:',
 		'closed_with_note' => 'closed with the note:',
@@ -141,7 +154,9 @@
 		'recat_q_title' => 'Recategorize question',
 		'reject_button' => 'reject',
 		'remove_q_favorites' => 'Remove this question from my favorites',
-		'reopen_button' => 'reopen',
+		'reopen_button' => 'reopen answers',
+        //added by 
+        'votes_reopen_button' => 'reopen votes',
 		'reply_button' => 'reply',
 		'reply_c_popup' => 'Reply to this comment',
 		'reshow_button' => 'reshow',

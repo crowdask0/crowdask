@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -53,6 +53,10 @@
 	@define('QA_DB_MAX_BLOB_FILE_NAME_LENGTH', 255);
 	@define('QA_DB_MAX_META_TITLE_LENGTH', 40);
 	@define('QA_DB_MAX_META_CONTENT_LENGTH', 8000);
+    //
+    @define('QA_DB_MAX_BRULE_TITLE_LENGTH', 200);
+    @define('QA_DB_MAX_BRULE_CONTENT_LENGTH', 200);
+    @define('QA_DB_MAX_BRULE_DESC_LENGTH', 200);
 
 
 //	How many records to retrieve for different circumstances. In many cases we retrieve more records than we

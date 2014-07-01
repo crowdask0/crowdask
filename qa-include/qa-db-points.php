@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -41,7 +41,7 @@
 			'points_post_q', 'points_select_a', 'points_per_q_voted_up', 'points_per_q_voted_down', 'points_q_voted_max_gain', 'points_q_voted_max_loss',
 			'points_post_a', 'points_a_selected', 'points_per_a_voted_up', 'points_per_a_voted_down', 'points_a_voted_max_gain', 'points_a_voted_max_loss',
 			'points_vote_up_q', 'points_vote_down_q', 'points_vote_up_a', 'points_vote_down_a',
-			
+			'min_points_to_assign_bounty', 'max_bounty', 'min_bounty','inc_bounty',
 			'points_multiple', 'points_base',
 		);
 	}
@@ -135,13 +135,23 @@
 				'multiple' => 0,
 				'formula' => "COALESCE(SUM(downvotes), 0) AS downvoteds FROM ^posts AS userid_src WHERE userid~",
 			),
+			
+  			'bountyOut' => array(
+				'multiple' => 1,
+				'formula'  => "COALESCE(SUM(value), 0) AS bountyOut FROM (SELECT bountyid, postid, value, assignedBy AS userid, assignedTo, created, assigned FROM ^bounty) AS userid_src WHERE userid~",
+			), 
+			
+			'bountyIn' => array(
+				'multiple' => 1,
+				'formula'  => "COALESCE(SUM(value), 0) AS bountyIn FROM (SELECT bountyid, postid, value, assignedBy, assignedTo AS userid, created, assigned FROM ^bounty) AS userid_src WHERE userid~",
+			), 
 		);
 	}
 
 	
 	function qa_db_points_update_ifuser($userid, $columns)
 /*
-	Update the userpoints table in the database for $userid and $columns, plus the summary points column.
+	Update the userpoints qa_db_points_set_bonustable in the database for $userid and $columns, plus the summary points column.
 	Set $columns to true for all, empty for none, an array for several, or a single value for one.
 	This dynamically builds some fairly crazy looking SQL, but it works, and saves repeat calculations.
 */
@@ -179,7 +189,12 @@
 					$insertpoints.='+('.(int)$multiple.'*@_'.$field.')';
 				}
 				
-				$updatepoints.='+('.$multiple.'*'.(isset($keycolumns[$field]) ? '@_' : '').$field.')';
+				//by 
+				//deduct bountyOut
+				if($field == 'bountyOut')
+					$updatepoints.='-('.$multiple.'*'.(isset($keycolumns[$field]) ? '@_' : '').$field.')';
+				else
+					$updatepoints.='+('.$multiple.'*'.(isset($keycolumns[$field]) ? '@_' : '').$field.')';
 			}
 			
 			$query='INSERT INTO ^userpoints ('.$insertfields.'points) VALUES ('.$insertvalues.$insertpoints.') '.
@@ -190,6 +205,9 @@
 			
 			if (qa_db_insert_on_duplicate_inserted())
 				qa_db_userpointscount_update();
+
+            //update the user level automatically
+            qa_db_update_level($userid);
 		}
 	}
 
@@ -214,6 +232,50 @@
 		if (qa_should_update_counts())
 			qa_db_query_sub("REPLACE ^options (title, content) SELECT 'cache_userpointscount', COUNT(*) FROM ^userpoints");
 	}
+
+    function qa_db_update_level($userid)
+     /* added by :
+     * We update user level according to their points when the users are from registered to editor
+     */
+    {
+        require_once QA_INCLUDE_DIR.'qa-db-selects.php';
+        require_once QA_INCLUDE_DIR.'qa-app-users-edit.php';
+        $handle = qa_get_logged_in_handle();
+
+        //Get the user level from qa_users and
+        //the total updated user points (the points normally updated when user creates new posts, answers or etc)
+        $useraccount = qa_db_select_with_pending(
+            qa_db_user_account_selectspec($userid,true)
+        );
+        $userpoints = qa_db_select_with_pending(
+            qa_db_user_points_selectspec($userid,true)
+        );
+
+        if ((is_array($userpoints)) && is_array($useraccount))
+        {
+            //if the updated points rise above or fall below certain thresholds, update the user level
+            $currentLevel = $useraccount['level'];
+            $currentPoints = $userpoints['points'];
+
+            //Only the level system from registered to editor is based on points system
+            if($currentLevel <= QA_USER_LEVEL_EDITOR && $currentLevel >= QA_USER_LEVEL_BASIC){
+                if($currentPoints >= QA_USER_EDITOR_POINTS)
+                {
+                    if($currentLevel != QA_USER_LEVEL_EDITOR)
+                        qa_set_user_level($userid,$handle,QA_USER_LEVEL_EDITOR,$currentLevel);
+                }elseif($currentPoints >= QA_USER_EXPERT_POINTS)
+                {
+                    if($currentLevel != QA_USER_LEVEL_EXPERT)
+                        qa_set_user_level($userid,$handle,QA_USER_LEVEL_EXPERT,$currentLevel);
+                }elseif($currentPoints >=QA_USER_BASIC_POINTS)
+                {
+                    if($currentLevel != QA_USER_LEVEL_BASIC){
+                        qa_set_user_level($userid,$handle,QA_USER_LEVEL_BASIC,$currentLevel);
+                    }
+                }
+            }
+        }
+    }
 
 
 /*

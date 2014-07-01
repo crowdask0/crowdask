@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -288,7 +288,12 @@
 				$firstuserid, $lastuserid
 			);
 			
-			$updatepoints.='+('.((int)$calculation['multiple']).'*'.$field.')';
+			//by 
+			//deduct bountyOut
+			if($field == 'bountyOut')
+				$updatepoints.='-('.((int)$calculation['multiple']).'*'.$field.')';
+			else
+				$updatepoints.='+('.((int)$calculation['multiple']).'*'.$field.')';
 		}
 		
 		qa_db_query_sub(

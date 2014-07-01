@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -59,7 +59,6 @@
 	$changehandle=qa_opt('allow_change_usernames') || ((!$userpoints['qposts']) && (!$userpoints['aposts']) && (!$userpoints['cposts']));
 	$doconfirms=qa_opt('confirm_user_emails') && ($useraccount['level']<QA_USER_LEVEL_EXPERT);
 	$isconfirmed=($useraccount['flags'] & QA_USER_FLAGS_EMAIL_CONFIRMED) ? true : false;
-	$haspassword=isset($useraccount['passsalt']) && isset($useraccount['passcheck']);
 
 	
 //	Process profile if saved
@@ -154,43 +153,6 @@
 				qa_redirect('account', array('state' => 'profile-saved'));
 	
 			qa_logged_in_user_flush();
-		}
-	}
-
-
-//	Process change password if clicked
-
-	if (qa_clicked('dochangepassword')) {
-		require_once QA_INCLUDE_DIR.'qa-app-users-edit.php';
-		
-		$inoldpassword=qa_post_text('oldpassword');
-		$innewpassword1=qa_post_text('newpassword1');
-		$innewpassword2=qa_post_text('newpassword2');
-		
-		if (!qa_check_form_security_code('password', qa_post_text('code')))
-			$errors['page']=qa_lang_html('misc/form_security_again');
-		
-		else {
-			$errors=array();
-			
-			if ($haspassword && (strtolower(qa_db_calc_passcheck($inoldpassword, $useraccount['passsalt'])) != strtolower($useraccount['passcheck'])))
-				$errors['oldpassword']=qa_lang('users/password_wrong');
-			
-			$useraccount['password']=$inoldpassword;
-			$errors=$errors+qa_password_validate($innewpassword1, $useraccount); // array union
-	
-			if ($innewpassword1 != $innewpassword2)
-				$errors['newpassword2']=qa_lang('users/password_mismatch');
-				
-			if (empty($errors)) {
-				qa_db_user_set_password($userid, $innewpassword1);
-				qa_db_user_set($userid, 'sessioncode', ''); // stop old 'Remember me' style logins from still working
-				qa_set_logged_in_user($userid, $useraccount['handle'], false, $useraccount['sessionsource']); // reinstate this specific session
-	
-				qa_report_event('u_password', $userid, $useraccount['handle'], qa_cookie_get());
-			
-				qa_redirect('account', array('state' => 'password-changed'));
-			}
 		}
 	}
 
@@ -365,60 +327,6 @@
 	$qa_content['raw']['account']=$useraccount;
 	$qa_content['raw']['profile']=$userprofile;
 	$qa_content['raw']['points']=$userpoints;
-	
-
-//	Change password form
-
-	$qa_content['form_password']=array(
-		'tags' => 'method="post" action="'.qa_self_html().'"',
-		
-		'style' => 'wide',
-		
-		'title' => qa_lang_html('users/change_password'),
-		
-		'fields' => array(
-			'old' => array(
-				'label' => qa_lang_html('users/old_password'),
-				'tags' => 'name="oldpassword"',
-				'value' => qa_html(@$inoldpassword),
-				'type' => 'password',
-				'error' => qa_html(@$errors['oldpassword']),
-			),
-		
-			'new_1' => array(
-				'label' => qa_lang_html('users/new_password_1'),
-				'tags' => 'name="newpassword1"',
-				'type' => 'password',
-				'error' => qa_html(@$errors['password']),
-			),
-
-			'new_2' => array(
-				'label' => qa_lang_html('users/new_password_2'),
-				'tags' => 'name="newpassword2"',
-				'type' => 'password',
-				'error' => qa_html(@$errors['newpassword2']),
-			),
-		),
-		
-		'buttons' => array(
-			'change' => array(
-				'label' => qa_lang_html('users/change_password'),
-			),
-		),
-		
-		'hidden' => array(
-			'dochangepassword' => '1',
-			'code' => qa_get_form_security_code('password'),
-		),
-	);
-	
-	if (!$haspassword) {
-		$qa_content['form_password']['fields']['old']['type']='static';
-		$qa_content['form_password']['fields']['old']['value']=qa_lang_html('users/password_none');
-	}
-	
-	if (qa_get_state()=='password-changed')
-		$qa_content['form_profile']['ok']=qa_lang_html('users/password_changed');
 		
 
 	$qa_content['navigation']['sub']=qa_account_sub_navigation();

@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -45,7 +45,7 @@
 	$categories=qa_db_select_with_pending(qa_db_category_nav_selectspec($editcategoryid, true, false, true));
 	
 
-//	Check admin privileges (do late to allow one DB query)
+//	Check admin privileges (do qa_db_select_with_pending(qa_db_category_nav_selectspec($editcategoryid, true, false, true));late to allow one DB query)
 
 	if (!qa_admin_check_privileges($qa_content))
 		return $qa_content;

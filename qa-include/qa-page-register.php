@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -128,11 +128,36 @@
 
 	$qa_content=qa_content_prepare();
 
-	$qa_content['title']=qa_lang_html('users/register_title');
+	$qa_content['title']=qa_lang_html('users/login_title');
 	
 	$qa_content['error']=@$pageerror;
 
 	$custom=qa_opt('show_custom_register') ? trim(qa_opt('custom_register')) : '';
+	
+	$loginmodules=qa_load_modules_with('login', 'login_html');
+	
+	foreach ($loginmodules as $module) {
+	ob_start();
+	$module->login_html(qa_opt('site_url').qa_get('to'), 'register');
+	$html=ob_get_clean();
+	
+	if (strlen($html))
+		@$qa_content['custom'].=$html;
+	}
+	
+	@$qa_content['custom'].="<br> </br>";
+	@$qa_content['custom'].="<br> </br>";
+	
+	//site users login
+	
+	//header for site users login
+	@$qa_content['custom'].='<br>';
+	@$qa_content['custom'].='<h2>'.qa_lang_html('users/register_title').'</h2>';
+	@$qa_content['custom'].='<p></p>';
+	
+	$qa_content['focusid']=isset($errors['handle']) ? 'handle'
+	: (isset($errors['password']) ? 'password'
+			: (isset($errors['email']) ? 'email' : 'handle')); 
 	
 	$qa_content['form']=array(
 		'tags' => 'method="post" action="'.qa_self_html().'"',
@@ -203,21 +228,6 @@
 	
 	if (qa_opt('captcha_on_register'))
 		qa_set_up_captcha_field($qa_content, $qa_content['form']['fields'], @$errors);
-	
-	$loginmodules=qa_load_modules_with('login', 'login_html');
-	
-	foreach ($loginmodules as $module) {
-		ob_start();
-		$module->login_html(qa_opt('site_url').qa_get('to'), 'register');
-		$html=ob_get_clean();
-		
-		if (strlen($html))
-			@$qa_content['custom'].='<br>'.$html.'<br>';
-	}
-
-	$qa_content['focusid']=isset($errors['handle']) ? 'handle'
-		: (isset($errors['password']) ? 'password'
-			: (isset($errors['email']) ? 'email' : 'handle'));
 
 			
 	return $qa_content;

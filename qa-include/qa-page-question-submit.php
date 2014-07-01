@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -52,6 +52,12 @@
 			qa_question_close_clear($question, $closepost, $userid, $handle, $cookieid);
 			return true;
 		}
+
+        //by 
+        if (qa_clicked('q_doreopen_v') && $question['votes_reopenable'] && qa_page_q_click_check_form_code($question, $error) ) {
+            qa_question_close_votes_clear($question, $closepost, $userid, $handle, $cookieid);
+            return true;
+        }
 		
 		if ( (qa_clicked('q_dohide') && $question['hideable']) || (qa_clicked('q_doreject') && $question['moderatable']) )
 			if (qa_page_q_click_check_form_code($question, $error)) {

@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -31,6 +31,7 @@
 
 	require_once QA_INCLUDE_DIR.'qa-app-captcha.php';
 	require_once QA_INCLUDE_DIR.'qa-db-selects.php';
+	require_once QA_INCLUDE_DIR.'qa-app-emails.php';
 
 
 //	Get useful information on the logged in user
@@ -92,16 +93,29 @@
 					'^browser' => @$_SERVER['HTTP_USER_AGENT'],
 				);
 				
-				if (qa_send_email(array(
-					'fromemail' => qa_email_validate(@$inemail) ? $inemail : qa_opt('from_email'),
-					'fromname' => $inname,
-					'toemail' => qa_opt('feedback_email'),
-					'toname' => qa_opt('site_title'),
-					'subject' => qa_lang_sub('emails/feedback_subject', qa_opt('site_title')),
-					'body' => strtr(qa_lang('emails/feedback_body'), $subs),
-					'html' => false,
-				)))
+
+				//
+				$feedback_emails_arr = qa_email_arrays(qa_opt('feedback_email'));
+				
+				if(!empty($feedback_emails_arr))
+				{
 					$feedbacksent=true;
+ 					foreach ($feedback_emails_arr as $feedback_email)
+					{
+						if(!qa_send_email(array(
+								'fromemail' => qa_email_validate(@$inemail) ? $inemail : qa_opt('from_email'),
+								'fromname' => $inname,
+								'toemail' => $feedback_email,
+								'toname' => qa_opt('site_title'),
+								'subject' => qa_lang_sub('emails/feedback_subject', qa_opt('site_title')),
+								'body' => strtr(qa_lang('emails/feedback_body'), $subs),
+								'html' => false,
+						))){
+							$feedback_email = false;
+						}
+					} 
+					
+				}
 				else
 					$pageerror=qa_lang_html('main/general_error');
 					

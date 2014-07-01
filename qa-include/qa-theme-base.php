@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -359,7 +359,6 @@
 		{
 			$this->body_prefix();
 			$this->notices();
-			
 			$this->output('<div class="qa-body-wrapper">', '');
 
 			$this->widgets('full', 'top');
@@ -513,20 +512,38 @@
 		
 		function nav_list($navigation, $class, $level=null)
 		{
+			
 			$this->output('<ul class="qa-'.$class.'-list'.(isset($level) ? (' qa-'.$class.'-list-'.$level) : '').'">');
 
 			$index=0;
+			
+			//insert maximization/minimization tab for demo section
+			if($class == 'nav-main'){
+				$this->set_context('nav_key', 'Test1');
+				$this->set_context('nav_index', $index++);
+			
+				//build a link object
+				$min_tab_link = array();
+				$min_tab_link['opposite'] = true;
+				$min_tab_link['state'] = false;
+				$min_tab_link['subnav'] = null;
+				$min_tab_link['url'] = "";
+				$min_tab_link['label'] = "_";
+				$this->nav_item('restore', $min_tab_link, $class, $level);
+			}
 			
 			foreach ($navigation as $key => $navlink) {
 				$this->set_context('nav_key', $key);
 				$this->set_context('nav_index', $index++);
 				$this->nav_item($key, $navlink, $class, $level);
 			}
-
+			
 			$this->clear_context('nav_key');
 			$this->clear_context('nav_index');
 			
 			$this->output('</ul>');
+			
+
 		}
 		
 		function nav_clear($navtype)
@@ -539,34 +556,75 @@
 		
 		function nav_item($key, $navlink, $class, $level=null)
 		{
-			$suffix=strtr($key, array( // map special character in navigation key
-				'$' => '',
-				'/' => '-',
-			));
-			
-			$this->output('<li class="qa-'.$class.'-item'.(@$navlink['opposite'] ? '-opp' : '').
-				(@$navlink['state'] ? (' qa-'.$class.'-'.$navlink['state']) : '').' qa-'.$class.'-'.$suffix.'">');
-			$this->nav_link($navlink, $class);
-			
-			if (count(@$navlink['subnav']))
-				$this->nav_list($navlink['subnav'], $class, 1+$level);
-			
-			$this->output('</li>');
+			if($key == 'restore' && $class == 'nav-main')
+			{
+				//For minimizationa and maximization button
+				$this->output('
+						<script>				
+						function restore()
+						{
+							element = document.getElementById("qa-nav-main-restore");
+							if(element != null){
+									var demo_sec = document.getElementById("qa-demo");
+									if(demo_sec)
+										demo_sec.style.display = "";
+									var width = demo_sec.offsetWidth;
+									var height = Math.round(1.0 * 941 / 4081 * width);
+									var demo_blurb = document.getElementById("qa-blurb");
+									demo_sec.setAttribute("style", "height:" + height +"px");
+									if(demo_blurb)
+										demo_blurb.style.display = "";
+									var demo_close = document.getElementById("demo_close");
+									if(demo_close)
+										demo_close.style.display = "";
+									element.style.display="none";
+								}
+							}
+						</script>');
+				
+				$this->output('<li class="qa-nav-main-item-opp" id="qa-nav-main-restore" style="display:none;">');
+				$this->output(
+				'<a class="qa-nav-main-link" href="#" onclick="restore();" title="Restore Demo">+</a>'
+				);
+				$this->output('</li>');
+			}else
+			{
+				$suffix=strtr($key, array( // map special character in navigation key
+					'$' => '',
+					'/' => '-',
+				));
+				
+				$this->output('<li class="qa-'.$class.'-item'.(@$navlink['opposite'] ? '-opp' : '').
+					(@$navlink['state'] ? (' qa-'.$class.'-'.$navlink['state']) : '').' qa-'.$class.'-'.$suffix.'">');
+				$this->nav_link($navlink, $class);
+				
+				if (count(@$navlink['subnav']))
+					$this->nav_list($navlink['subnav'], $class, 1+$level);
+				
+				$this->output('</li>');
+			}
 		}
 		
 		function nav_link($navlink, $class)
 		{
 			if (isset($navlink['url']))
+			{
+				if($class=='nav-sub'){
+					$tooltip = $navlink['label'];
+					if($navlink['label'] == 'Hot!')
+						$tooltip = 'Most popular';
+				}else 
+					$tooltip='';
+				
 				$this->output(
-					'<a href="'.$navlink['url'].'" class="qa-'.$class.'-link'.
+					'<a title="'.$tooltip.'" href="'.$navlink['url'].'" class="qa-'.$class.'-link'.
 					(@$navlink['selected'] ? (' qa-'.$class.'-selected') : '').
 					(@$navlink['favorited'] ? (' qa-'.$class.'-favorited') : '').
 					'"'.(strlen(@$navlink['popup']) ? (' title="'.$navlink['popup'].'"') : '').
 					(isset($navlink['target']) ? (' target="'.$navlink['target'].'"') : '').'>'.$navlink['label'].
 					'</a>'
 				);
-
-			else
+			}else
 				$this->output(
 					'<span class="qa-'.$class.'-nolink'.(@$navlink['selected'] ? (' qa-'.$class.'-selected') : '').
 					(@$navlink['favorited'] ? (' qa-'.$class.'-favorited') : '').'"'.
@@ -582,6 +640,12 @@
 		{
 			$this->output_split(@$this->content['loggedin'], 'qa-logged-in', 'div');
 		}
+
+        //
+        function display_badge_summary()
+        {
+
+        }
 		
 		function header_clear()
 		{
@@ -594,12 +658,17 @@
 		function sidepanel()
 		{
 			$this->output('<div class="qa-sidepanel">');
-			$this->widgets('side', 'top');
+
+			//
+			if ($this->template!='admin' && $this->template!='ask' &&$this->template!='users'  &&$this->template!='categories')
+				$this->output_raw(@$this->content['sidepanel']);
+			
+			$this->widgets('side', 'top');			
 			$this->sidebar();
 			$this->widgets('side', 'high');
 			$this->nav('cat', 1);
 			$this->widgets('side', 'low');
-			$this->output_raw(@$this->content['sidepanel']);
+			
 			$this->feed();
 			$this->widgets('side', 'bottom');
 			$this->output('</div>', '');
@@ -794,7 +863,7 @@
 				
 			$this->output(
 				'<div class="qa-attribution">',
-				'Powered by <a href="http://www.question2answer.org/">Question2Answer</a>',
+				'Derived from <a href="http://www.question2answer.org/">Question2Answer</a>',
 				'</div>'
 			);
 		}
@@ -1436,7 +1505,7 @@
 		function q_item_stats($q_item)
 		{
 			$this->output('<div class="qa-q-item-stats">');
-			
+
 			$this->voting($q_item);
 			$this->a_count($q_item);
 
@@ -1470,7 +1539,17 @@
 		{
 			$this->output(
 				'<div class="qa-q-item-title">',
-				'<a href="'.$q_item['url'].'">'.$q_item['title'].'</a>',
+				'<a href="'.$q_item['url'].'">');
+			//
+			if(isset($q_item['bounty']))
+				$this->output(
+					'<div class="bounty-indicator" title="this question has an open bounty worth 20 reputation" >'.
+					'+'.$q_item['bounty'].
+					'</div>'
+				);
+			
+			$this->output(
+				$q_item['title'].'</a>',
 				'</div>'
 			);
 		}
@@ -1493,18 +1572,24 @@
 			}
 		}
 		
-		function voting($post)
+		function voting($post, $hideVoteButton = false)
 		{
-			if (isset($post['vote_view'])) {
-				$this->output('<div class="qa-voting '.(($post['vote_view']=='updown') ? 'qa-voting-updown' : 'qa-voting-net').'" '.@$post['vote_tags'].'>');
-				$this->voting_inner_html($post);
+			
+				if ($post['upvotes_raw'] || $post['downvotes_raw'] || $post['netvotes_raw']) 
+					$this->output('<div class="qa-voting '.(($post['vote_view']=='updown') ? 'qa-voting-updown' : 'qa-voting-net').'" '.@$post['vote_tags'].'>');
+				else 
+					$this->output('<div class="qa-voting qa-voting-zero '.(($post['vote_view']=='updown') ? 'qa-voting-updown' : 'qa-voting-net').'" '.@$post['vote_tags'].'>');
+				
+				$this->voting_inner_html($post, $hideVoteButton);
 				$this->output('</div>');
-			}
+		
 		}
 		
-		function voting_inner_html($post)
+		function voting_inner_html($post, $hideVoteButton = false)
 		{
-			$this->vote_buttons($post);
+			if($hideVoteButton == false)
+				$this->vote_buttons($post);
+			
 			$this->vote_count($post);
 			$this->vote_clear();
 		}
@@ -1586,8 +1671,10 @@
 		function view_count($post)
 		{
 			// You can also use $post['views_raw'] to get a raw integer count of views
-			
-			$this->output_split(@$post['views'], 'qa-view-count');
+			if(@$post['views']['data'] != 0)
+				$this->output_split(@$post['views'], 'qa-view-count');
+			else 
+				$this->output_split(@$post['views'], 'qa-view-count','span', 'span', 'qa-view-count-zero');
 		}
 		
 		function avatar($post, $class)
@@ -1768,7 +1855,7 @@
 		
 		function post_tag_list($post, $class)
 		{
-			$this->output('<ul class="'.$class.'-tag-list">');
+			$this->output('<ul class="'.$class.'-tag-list tag-algin-left">');
 			
 			foreach ($post['q_tags'] as $taghtml)
 				$this->post_tag_item($taghtml, $class);
@@ -1893,7 +1980,12 @@
 				}
 					
 				$this->q_view_main($q_view);
+				
+				//
+				//Add Bounty information
+				$this->q_view_bounty($q_view);
 				$this->q_view_clear();
+				
 				
 				$this->output('</div> <!-- END qa-q-view -->', '');
 			}
@@ -1913,17 +2005,23 @@
 		{
 			$this->output('<div class="qa-q-view-main">');
 
+
+
 			if (isset($q_view['main_form_tags']))
 				$this->output('<form '.$q_view['main_form_tags'].'>'); // form for buttons on question
 
+
 			$this->view_count($q_view);
+			
 			$this->q_view_content($q_view);
 			$this->q_view_extra($q_view);
 			$this->q_view_follows($q_view);
 			$this->q_view_closed($q_view);
 			$this->post_tags($q_view, 'qa-q-view');
 			$this->post_avatar_meta($q_view, 'qa-q-view');
+			
 			$this->q_view_buttons($q_view);
+
 			$this->c_list(@$q_view['c_list'], 'qa-q-view');
 			
 			if (isset($q_view['main_form_tags'])) {
@@ -1934,6 +2032,8 @@
 			$this->c_form(@$q_view['c_form']);
 			
 			$this->output('</div> <!-- END qa-q-view-main -->');
+
+
 		}
 		
 		function q_view_content($q_view)
@@ -1969,6 +2069,44 @@
 					$haslink ? '</a>' : '</span>',
 					'</div>'
 				);
+			}
+		}
+		
+		function q_view_bounty($q_view)
+		{
+			if(!empty($q_view['bounty'])){
+				
+				$this->output(
+					'<div class="qa-q-view">');
+				$this->output(
+					'<div class="bounty-status">');			
+				$this->output(
+					'<div class="bounty-text">');
+				if($q_view['bountyAwarded'] == 0)
+					$this->output(
+							'This question has an open bounty worth '
+							.'<a class="bounty-indicator" style="float:none !important">'
+							.'+'.$q_view['bounty']
+							.'</a>'
+							.' from user '
+							.qa_get_one_user_html($q_view['owner_handle']).'.'
+						);
+				else 
+					$this->output(
+							'The bounty value '
+							.'<a class="bounty-indicator" style="float:none !important">'
+							.'+'.$q_view['bounty']
+							.'</a>'
+							.'has been awarded to user '
+							.qa_get_one_user_html($q_view['assignedTo']).'.'
+					);
+
+				$this->output(
+					'</div>',
+					'</div>',
+					'</div>'	
+				);
+				
 			}
 		}
 		

@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -84,9 +84,16 @@
 		'wall_post_subject' => 'Post on your ^site_title wall',
 		'wall_post_body' => "^f_handle has posted on your user wall at ^site_title:\n\n^open^post^close\n\nYou may respond to the post here:\n\n^url\n\nThank you,\n\n^site_title",
 
-		'welcome_body' => "Thank you for registering for ^site_title.\n\n^custom^confirmYour login details are as follows:\n\nEmail: ^email\nPassword: ^password\n\nPlease keep this information safe for future reference.\n\nThank you,\n\n^site_title\n^url",
-		'welcome_confirm' => "Please click below to confirm your email address.\n\n^url\n\n",
-		'welcome_subject' => 'Welcome to ^site_title!',
+		'welcome_body' =>
+            "Welcome to the CrowdAsk crowd-source library help system, the system that connect your academic questions with library answers!\n\n".
+            "You are receiving this email because you have signed up for the system.\n\n".
+            "By becoming an authenticated user, you have earned yourself 100 points. Good job!\n\n".
+            "Want to know how you can get even more points? Here are a couple of ways:  \n\n".
+            "(insert points for different actions here)\n\n".
+            "Your participation is what makes library crowd-sourced answers great. Ready to get started? \n".
+            "^confirm\n\nThank you,\n\n^site_title\n^url",
+        'welcome_confirm' => "Click on the link below!.\n\n^url\n\n",
+		'welcome_subject' => 'Welcome to CrowdAsk, the crowd-sourced help system!',
 	);
 	
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -23,6 +23,13 @@
 
 	More about this license: http://www.question2answer.org/license.php
 */
+
+	//redirect http request to https request
+	
+	if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == ""){
+		$redirect = "https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
+		header("Location: $redirect");
+	}
 
 	if (!defined('QA_VERSION')) { // don't allow this page to be requested directly from browser
 		header('Location: ../');
@@ -395,6 +402,8 @@
 		
 		return array(
 			'account' => 'qa-page-account.php',
+			//
+			'change-password' => 'qa-page-change-password.php',
 			'activity/' => 'qa-page-activity.php',
 			'admin/' => 'qa-page-admin-default.php',
 			'admin/approve' => 'qa-page-admin-approve.php',
@@ -410,6 +419,8 @@
 			'admin/stats' => 'qa-page-admin-stats.php',
 			'admin/userfields' => 'qa-page-admin-userfields.php',
 			'admin/usertitles' => 'qa-page-admin-usertitles.php',
+            //
+            'admin/brule' => 'qa-page-admin-brule.php',
 			'answers/' => 'qa-page-answers.php',
 			'ask' => 'qa-page-ask.php',
 			'categories/' => 'qa-page-categories.php',
@@ -429,6 +440,8 @@
 			'search' => 'qa-page-search.php',
 			'tag/' => 'qa-page-tag.php',
 			'tags' => 'qa-page-tags.php',
+			//
+			'badges' => 'qa-page-badges.php',
 			'unanswered/' => 'qa-page-unanswered.php',
 			'unsubscribe' => 'qa-page-unsubscribe.php',
 			'updates' => 'qa-page-updates.php',
@@ -649,7 +662,7 @@
 		
 		if ($logoshow)
 			$qa_content['logo']='<a href="'.qa_path_html('').'" class="qa-logo-link" title="'.qa_html(qa_opt('site_title')).'">'.
-				'<img src="'.qa_html(is_numeric(strpos($logourl, '://')) ? $logourl : qa_path_to_root().$logourl).'"'.
+				'<img width="100%" src="'.qa_html(is_numeric(strpos($logourl, '://')) ? $logourl : qa_path_to_root().$logourl).'"'.
 				($logowidth ? (' width="'.$logowidth.'"') : '').($logoheight ? (' height="'.$logoheight.'"') : '').
 				' border="0" alt="'.qa_html(qa_opt('site_title')).'"/></a>';
 		else
@@ -746,6 +759,10 @@
 		
 		$qa_content['script_rel']=array('qa-content/jquery-1.7.2.min.js');
 		$qa_content['script_rel'][]='qa-content/qa-page.js?'.QA_VERSION;
+		
+		//
+		//Add Google Analytics scripts
+		//$qa_content['script_rel'][]='qa-content/qa-googleAnalytics.js';
 		
 		if ($voting)
 			$qa_content['error']=@$qa_page_error_html;

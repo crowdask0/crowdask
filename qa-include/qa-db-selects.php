@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -112,6 +112,8 @@
 		
 		unset($qa_db_pending_results[$pendingid]);
 	}
+	
+	
 
 	
 	function qa_db_posts_basic_selectspec($voteuserid=null, $full=false, $user=true)
@@ -127,10 +129,11 @@
 		$selectspec=array(
 			'columns' => array(
 				'^posts.postid', '^posts.categoryid', '^posts.type', 'basetype' => 'LEFT(^posts.type, 1)', 'hidden' => "INSTR(^posts.type, '_HIDDEN')>0",
-				'^posts.acount', '^posts.selchildid', '^posts.closedbyid', '^posts.upvotes', '^posts.downvotes', '^posts.netvotes', '^posts.views', '^posts.hotness',
+				'^posts.acount', '^posts.selchildid', '^posts.closedbyid','^posts.closedvotesbyid', '^posts.upvotes', '^posts.downvotes', '^posts.netvotes', '^posts.views', '^posts.hotness',
 				'^posts.flagcount', '^posts.title', '^posts.tags', 'created' => 'UNIX_TIMESTAMP(^posts.created)', '^posts.name',
 				'categoryname' => '^categories.title', 'categorybackpath' => "^categories.backpath",
 				'categoryids' => "CONCAT_WS(',', ^posts.catidpath1, ^posts.catidpath2, ^posts.catidpath3, ^posts.categoryid)",
+				'^posts.bountyid','^posts.bountyAwarded',
 			),
 			
 			'arraykey' => 'postid',
@@ -262,10 +265,15 @@
 	Return SQL code that represents the constraint of a post being in the category with $categoryslugs, or any of its subcategories
 */
 	{
+			
 		if (!is_array($categoryslugs)) // accept old-style string arguments for one category deep
 			$categoryslugs=strlen($categoryslugs) ? array($categoryslugs) : array();
 		
 		$levels=count($categoryslugs);
+		
+		//
+		if(($levels == 1) && $categoryslugs[0] == 'non-categorized')
+			return 'categoryid IS NULL AND ';
 		
 		if (($levels>0) && ($levels<=QA_CATEGORY_DEPTH)) {
 			$arguments[]=qa_db_slugs_to_backpath($categoryslugs);
@@ -290,6 +298,7 @@
 			$type=$specialtype ? 'Q_HIDDEN' : 'Q'; // for backwards compatibility
 		
 		$count=isset($count) ? min($count, QA_DB_RETRIEVE_QS_AS) : QA_DB_RETRIEVE_QS_AS;
+		$bytime = null;
 		
 		switch ($sort) {
 			case 'acount':
@@ -303,7 +312,27 @@
 			case 'hotness':
 				$sortsql='ORDER BY ^posts.'.$sort.' DESC';
 				break;
-				
+			//
+			case 'hour':
+				$sortsql = 'ORDER BY ^posts.'.'created'.' DESC';
+				$bytime = ' AND UNIX_TIMESTAMP(created) >= UNIX_TIMESTAMP(NOW()) - 60*60 ';
+				break;
+			case 'day':
+				$sortsql = 'ORDER BY ^posts.'.'created'.' DESC';
+				$bytime = ' AND UNIX_TIMESTAMP(created) >= UNIX_TIMESTAMP(NOW()) - 60*60*24 ';
+				break;
+			case 'month':
+				$sortsql = 'ORDER BY ^posts.'.'created'.' DESC';
+				$bytime = ' AND UNIX_TIMESTAMP(created) >= UNIX_TIMESTAMP(NOW()) - 60*60*24*30 ';
+				break;
+			case 'week':
+				$sortsql = 'ORDER BY ^posts.'.'created'.' DESC';
+				$bytime = ' AND UNIX_TIMESTAMP(created) >= UNIX_TIMESTAMP(NOW()) - 60*60*24*7 ';
+				break;
+			//
+			case 'bounty':
+				$sortsql='ORDER BY ^posts.bountyAwarded ASC, ^posts.bountyid DESC, ^posts.created DESC';
+				break;
 			default:
 				qa_fatal_error('qa_db_qs_selectspec() called with illegal sort value');
 				break;
@@ -311,17 +340,22 @@
 		
 		$selectspec=qa_db_posts_basic_selectspec($voteuserid, $full);
 		
+		
+		//
 		$selectspec['source'].=" JOIN (SELECT postid FROM ^posts WHERE ".
 			qa_db_categoryslugs_sql_args($categoryslugs, $selectspec['arguments']).
 			(isset($createip) ? "createip=INET_ATON($) AND " : "").
-			"type=$ ".$sortsql." LIMIT #,#) y ON ^posts.postid=y.postid";
+			"type=$ ".($bytime==null? "":$bytime).$sortsql." LIMIT #,#) y ON ^posts.postid=y.postid";
 
 		if (isset($createip))
 			$selectspec['arguments'][]=$createip;
 		
 		array_push($selectspec['arguments'], $type, $start, $count);
-
-		$selectspec['sortdesc']=$sort;
+	
+		if($sort == 'hour' || $sort == 'day' || $sort == 'week' || $sort == 'month')
+			$sort = 'created';
+		if($sort != 'bounty')
+			$selectspec['sortdesc']=$sort;
 		
 		return $selectspec;
 	}
@@ -855,6 +889,18 @@
 		);
 	}
 
+    //
+    function qa_db_brule_nav_selectspec($bruleid = null)
+    {
+        //check the format of $bruleif
+        if($bruleid != null && !($bruleid >= 1))
+            return array();
+
+        return array(
+            'columns' => array('ruleid','title','content','type','desc1'),
+            'source' => ($bruleid == null)? '^badgerules':'^badgerules WHERE ruleid = '.$bruleid,
+        );
+    }
 	
 	function qa_db_category_nav_selectspec($slugsorid, $isid, $ispostid=false, $full=false)
 /*
@@ -1213,6 +1259,17 @@
 			'sortasc' => 'created',
 		);
 	}
+	
+	//
+	function qa_db_bounty_selectspec($bountyid)
+	{
+		return array(
+			'columns' => array('bountyid','postid','value','assignedBy','assignedTo','created','assigned'),
+			'source' => '^bounty WHERE bountyid=$',
+			'arguments' => array($bountyid),
+			'single' => true,
+		);
+	}
 
 	
 	function qa_db_user_points_selectspec($identifier, $isuserid=QA_FINAL_EXTERNAL_USERS)
@@ -1222,7 +1279,7 @@
 */
 	{
 		return array(
-			'columns' => array('points', 'qposts', 'aposts', 'cposts', 'aselects', 'aselecteds', 'qupvotes', 'qdownvotes', 'aupvotes', 'adownvotes', 'qvoteds', 'avoteds', 'upvoteds', 'downvoteds', 'bonus'),
+			'columns' => array('points', 'qposts', 'aposts', 'cposts', 'aselects', 'aselecteds', 'qupvotes', 'qdownvotes', 'aupvotes', 'adownvotes', 'qvoteds', 'avoteds', 'upvoteds', 'downvoteds', 'bonus','bountyIn','bountyOut'),
 			'source' => '^userpoints WHERE userid='.($isuserid ? '$' : '(SELECT userid FROM ^users WHERE handle=$ LIMIT 1)'),
 			'arguments' => array($identifier),
 			'single' => true,
@@ -1450,7 +1507,6 @@
 			'arguments' => array(QA_ENTITY_USER, QA_ENTITY_TAG, QA_ENTITY_CATEGORY, $userid, QA_ENTITY_QUESTION),
 		);
 	}	
-	
 
 	function qa_db_user_updates_selectspec($userid, $forfavorites=true, $forcontent=true)
 /*

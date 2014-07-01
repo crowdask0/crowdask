@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -42,6 +42,48 @@
 		);
 		
 		return qa_db_last_insert_id();
+	}
+	
+	//
+	function qa_db_bounty_create($postid, $value, $assignedBy)
+	{
+		qa_db_query_sub(
+			'INSERT INTO ^bounty (postid, value, assignedBy, created) '.
+			'VALUES (#, #, #, NOW())',
+			$postid, $value, $assignedBy
+		);
+		return qa_db_last_insert_id();
+	}
+	
+	//
+	function qa_db_update_bounty_for_question($questionid, $bountyid, $bountyAwarded = 0)
+	{
+		qa_db_query_sub(
+			"UPDATE ^posts ".
+			"SET bountyid=#, bountyAwarded=# ".
+			"WHERE postid=#",
+			$bountyid, $bountyAwarded, $questionid
+		);
+	}
+	
+	//
+	function qa_db_assign_bounty($bountyid, $assignedTo)
+	{
+		qa_db_query_sub(
+			"UPDATE ^bounty ".
+			"SET assignedTo=#, assigned=NOW() ".
+			"WHERE bountyid=#",
+			$assignedTo, $bountyid
+		);
+	}
+	
+	//
+	function qa_db_get_bounty($bountyid)
+	{
+		return qa_db_read_one_assoc(qa_db_query_sub(
+			'SELECT bountyid, postid, value, assignedBy, assignedTo, created, assigned FROM ^bounty WHERE bountyid=#',
+			$bountyid
+		),true);
 	}
 
 	

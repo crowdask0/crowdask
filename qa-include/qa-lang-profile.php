@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -29,7 +29,7 @@
 		'1_down_vote' => '1 down vote',
 		'1_up_vote' => '1 up vote',
 		'1_with_best_chosen' => ' (1 with best answer chosen)',
-		'activity_by_x' => 'Activity by ^',
+		'activity_by_x' => 'Summary',
 		'answers_by_x' => 'Answers by ^',		
 		'answers' => 'Answers:',
 		'bonus_points' => 'Bonus points:',
@@ -74,6 +74,8 @@
 		'questions' => 'Questions:',
 		'ranked_x' => ' (ranked #^)',
 		'received' => 'Received:',
+        //
+        'badges' => 'Badges:',
 		'recent_activity_by_x' => 'Recent activity by ^',
 		'score' => 'Score:',
 		'send_private_message' => ' - ^1send private message^2',

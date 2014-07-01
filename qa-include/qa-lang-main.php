@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -102,14 +102,17 @@
 		'nav_admin' => 'Admin',
 		'nav_ask' => 'Ask a Question',
 		'nav_categories' => 'Categories',
-		'nav_feedback' => 'Send feedback',
+		'nav_feedback' => 'Feedback',
 		'nav_home' => 'Home',
 		'nav_hot' => 'Hot!',
-		'nav_login' => 'Login',
+		'nav_login' => 'Other Login',
 		'nav_logout' => 'Logout',
 		'nav_most_answers' => 'Most answers',
 		'nav_most_recent' => 'Recent',
 		'nav_most_views' => 'Most views',
+		//
+		'nav_most_bounty' => 'Bounties',
+		
 		'nav_most_votes' => 'Most votes',
 		'nav_no_answer' => 'No answer',
 		'nav_no_selected_answer' => 'No selected answer',
@@ -183,6 +186,19 @@
 		'view_q_must_login' => 'Please ^1log in^2 or ^3register^4 to view question pages.',
 		'viewed_qs_in_x' => 'Most viewed questions in ^',
 		'viewed_qs_title' => 'Most viewed questions',
+		//
+		'bounty_qs_in_x' => 'Most bounty questions in ^',
+		'bounty_qs_title' => 'Most bounty questions',
+			
+		'hour_qs_in_x' => 'Questions asked last hour in ^',
+		'hour_qs_title' => 'Questions asked last hour',
+		'day_qs_in_x' => 'Questions asked last day in ^',
+		'day_qs_title' => 'Question asked last day',
+		'week_qs_in_x' => 'Questions asked last week in ^',
+		'week_qs_title' => 'Question asked last week',	
+		'month_qs_in_x' => 'Questions asked last month in ^',
+		'month_qs_title' => 'Question asked last month',		
+			
 		'vote_disabled_approve' => 'You account must be approved before you can vote',
 		'vote_disabled_down' => 'Voting down is only available to some users',
 		'vote_disabled_down_approve' => 'Your account must be approved before you can vote down',
@@ -223,6 +239,9 @@
 		'x_votes' => '^ votes',
 		'x_weeks' => '^ weeks',
 		'x_years' => '^ years',
+
+        //added by 
+       'brule_format' => 'Badge rule format is incorrect',
 	);
 	
 

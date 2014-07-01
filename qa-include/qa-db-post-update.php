@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -75,6 +75,25 @@
 				$closedbyid, $questionid
 			);
 	}
+
+    //added by 
+    function qa_db_post_set_close_votes($questionid, $closedvotesbyid, $lastuserid=null, $lastip=null)
+        /*
+            Set $questionid to be closed by post $closedbyid (null if not closed) in the database, and optionally record that
+            $lastuserid did it from $lastip
+        */
+    {
+        if (isset($lastuserid) || isset($lastip)) {
+            qa_db_query_sub(
+                "UPDATE ^posts SET closedvotesbyid=#, updated=NOW(), updatetype=$, lastuserid=$, lastip=INET_ATON($) WHERE postid=#",
+                $closedvotesbyid, QA_UPDATE_CLOSED, $lastuserid, $lastip, $questionid
+            );
+        } else
+            qa_db_query_sub(
+                'UPDATE ^posts SET closedvotesbyid=# WHERE postid=#',
+                $closedvotesbyid, $questionid
+            );
+    }
 
 	
 	function qa_db_post_set_type($postid, $type, $lastuserid=null, $lastip=null, $updatetype=QA_UPDATE_TYPE)

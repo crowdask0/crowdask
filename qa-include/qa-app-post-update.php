@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -153,6 +153,13 @@
 
 		if (isset($selchildid)) {
 			qa_db_points_update_ifuser($answers[$selchildid]['userid'], 'aselecteds');
+			
+			//
+			//assign the bounty to the first selected answer
+			if($oldquestion['bountyid'] != null && $oldquestion['bountyAwarded'] == 0){
+				qa_assign_bounty($oldquestion['postid'],$answers[$selchildid]['userid']);
+				qa_db_points_update_ifuser($answers[$selchildid]['userid'], 'bountyIn');
+			}
 
 			qa_report_event('a_select', $userid, $handle, $cookieid, array(
 				'parentid' => $oldquestion['postid'],
@@ -161,6 +168,7 @@
 				'answer' => $answers[$selchildid],
 			));
 		}
+		
 	}
 
 	
@@ -185,7 +193,31 @@
 			));
 		}
 	}
-	
+
+    //added by 
+    function qa_question_close_votes_clear($oldquestion, $oldclosepost, $userid, $handle, $cookieid)
+        /*
+            Reopen votes of $oldquestion if its vote was closed. Pass details of the user doing this in $userid, $handle and $cookieid, and the
+            $oldclosepost (to match $oldquestion['closedbyid']) if any.
+            See qa-app-posts.php for a higher-level function which is easier to use.
+        */
+    {
+        if (isset($oldquestion['closedvotesbyid'])) {
+            qa_db_post_set_close_votes($oldquestion['postid'], null, $userid, qa_remote_ip_address());
+
+            //by 
+            //Here $oldclosepost is always null, because the initialization of this variable in qa-page-question.php is for close_answer_post only
+            //So we need to find $oldclosepost ourself
+            //the minimum change is as following
+            qa_post_unindex($oldquestion['closedvotesbyid']);
+            qa_db_post_delete($oldquestion['closedvotesbyid']);
+
+            qa_report_event('q_reopen', $userid, $handle, $cookieid, array(
+                'postid' => $oldquestion['postid'],
+                'oldquestion' => $oldquestion,
+            ));
+        }
+    }
 	
 	function qa_question_close_duplicate($oldquestion, $oldclosepost, $originalpostid, $userid, $handle, $cookieid)
 /*
@@ -233,6 +265,34 @@
 			'note' => $note,
 		));
 	}
+
+    //by 
+    function qa_question_close_votes_other($oldquestion, $oldclosepost, $note, $userid, $handle, $cookieid)
+        /*
+            Close $oldquestion with the reason given in $note. Pass details of the user doing this in $userid, $handle and
+            $cookieid, and the $oldclosepost (to match $oldquestion['closedbyid']) if any.
+            See qa-app-posts.php for a higher-level function which is easier to use.
+        */
+        {
+        qa_question_close_votes_clear($oldquestion, $oldclosepost, $userid, $handle, $cookieid);
+
+        $postid=qa_db_post_create('NOTE', $oldquestion['postid'], $userid, isset($userid) ? null : $cookieid,
+            qa_remote_ip_address(), null, $note, '', null, null, $oldquestion['categoryid']);
+
+        qa_db_posts_calc_category_path($postid);
+
+        if ($oldquestion['type']=='Q')
+            qa_post_index($postid, 'NOTE', $oldquestion['postid'], $oldquestion['postid'], null, $note, '', $note, null, $oldquestion['categoryid']);
+
+        qa_db_post_set_close_votes($oldquestion['postid'], $postid, $userid, qa_remote_ip_address());
+
+        qa_report_event('q_close', $userid, $handle, $cookieid, array(
+            'postid' => $oldquestion['postid'],
+            'oldquestion' => $oldquestion,
+            'reason' => 'other',
+            'note' => $note,
+        ));
+    }
 
 	
 	function qa_question_set_hidden($oldquestion, $hidden, $userid, $handle, $cookieid, $answers, $commentsfollows, $closepost=null)

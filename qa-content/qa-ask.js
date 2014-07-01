@@ -1,5 +1,5 @@
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -296,3 +296,19 @@ function set_category_description(idprefix)
 		n.innerHTML=desc;
 	}
 }
+
+function show_bounty_field()
+{
+    var useBounty = document.getElementById('useBounty');
+
+    var bounty = document.getElementById('bounty').parentNode.parentNode;
+
+
+    if(useBounty.checked){
+        bounty.style.display = '';
+    }
+    else
+        bounty.style.display ='none';
+}
+
+

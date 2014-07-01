@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -294,7 +294,7 @@
 
 	$lines[]='<title>'.qa_xml($sitetitle.' - '.$title).'</title>';
 	$lines[]='<link>'.qa_xml(qa_path($linkrequest, $linkparams, $siteurl)).'</link>';
-	$lines[]='<description>Powered by Question2Answer</description>';
+	$lines[]='<description>Derived from Question2Answer</description>';
 	
 	foreach ($questions as $question) {
 

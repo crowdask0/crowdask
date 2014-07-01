@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -104,6 +104,21 @@
 		} elseif (($pagestate=='close') && qa_page_q_permit_edit($question, 'permit_close_q', $pageerror))
 			$formtype='q_close';
 	}
+
+// by 
+// Process close vote buttons for question
+    if ($question['votes_closeable']) {
+        if (qa_clicked('q_doclose_v'))
+            qa_page_q_refresh($pagestart, 'close_v');
+        elseif (qa_clicked('doclose') && qa_page_q_permit_edit($question, 'permit_close_q', $pageerror)) {
+            if (qa_page_q_close_v_q_submit($question, $closepost, $closein, $closeerrors))
+                qa_page_q_refresh($pagestart);
+            else
+                $formtype='q_close_v'; // keep editing if an error
+
+        } elseif (($pagestate=='close_v') && qa_page_q_permit_edit($question, 'permit_close_q', $pageerror))
+            $formtype='q_close_v';
+    }
 	
 	
 //	Process any single click operations or delete button for question
@@ -582,6 +597,60 @@
 
 		return $form;
 	}
+
+function qa_page_q_close_v_q_form(&$qa_content, $question, $id, $in, $errors)
+    /*
+     * Added by 
+     * Returns a $qa_content form for closing votes and sets up other parts of $qa_content accordingly
+    */
+{
+    $form=array(
+        'tags' => 'method="post" action="'.qa_self_html().'"',
+
+        'id' => $id,
+
+        'style' => 'tall',
+
+        'title' => qa_lang_html('question/close_v_form_title'),
+
+        'fields' => array(
+            'details' => array(
+                'tags' => 'name="q_close_v_details" id="q_close_v_details"',
+                'label' =>
+                '<span id="close_label_other">'.qa_lang_html('question/close_reason_title').'</span>',
+                'value' => @$in['details'],
+                'error' => qa_html(@$errors['details']),
+            ),
+        ),
+
+        'buttons' => array(
+            'close' => array(
+                'tags' => 'onclick="qa_show_waiting_after(this, false);"',
+                'label' => qa_lang_html('question/close_form_button'),
+            ),
+
+            'cancel' => array(
+                'tags' => 'name="docancel"',
+                'label' => qa_lang_html('main/cancel_button'),
+            ),
+        ),
+
+        'hidden' => array(
+            'doclose' => '1',
+            'code' => qa_get_form_security_code('close-'.$question['postid']),
+        ),
+    );
+
+    qa_set_display_rules($qa_content, array(
+        'close_label_duplicate' => 'q_close_duplicate',
+        'close_label_other' => '!q_close_duplicate',
+        'close_note_duplicate' => 'q_close_duplicate',
+    ));
+
+    $qa_content['focusid']='q_close_v_details';
+
+    return $form;
+}
 	
 	
 	function qa_page_q_close_q_submit($question, $closepost, &$in, &$errors)
@@ -634,7 +703,32 @@
 		
 		return false; 
 	}
-	
+
+/*  added by 
+ *   Processes a POSTed form for closing votes and returns true if successful
+ */
+function qa_page_q_close_v_q_submit($question, $closepost, &$in, &$errors)
+{
+    $in=array(
+        'details' => qa_post_text('q_close_v_details'),
+    );
+
+    $userid=qa_get_logged_in_userid();
+    $handle=qa_get_logged_in_handle();
+    $cookieid=qa_cookie_get();
+
+    if (!qa_check_form_security_code('close-'.$question['postid'], qa_post_text('code')))
+        $errors['details']=qa_lang_html('misc/form_security_again');
+
+    else {
+        if (strlen($in['details'])>0) {
+            qa_question_close_votes_other($question, $closepost, $in['details'], $userid, $handle, $cookieid);
+            return true;
+        } else
+            $errors['details']=qa_lang('main/field_required');
+    }
+    return false;
+}
 	
 	function qa_page_q_edit_a_form(&$qa_content, $id, $answer, $question, $answers, $commentsfollows, $in, $errors)
 /*

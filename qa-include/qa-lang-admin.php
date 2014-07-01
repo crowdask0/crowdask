@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -59,6 +59,13 @@
 		'categories_introduction' => 'To get started with categories, click the \'Add Category\' button.',
 		'categories_not_shown' => 'Some questions have categories which will not be displayed.',
 		'categories_title' => 'Categories',
+        //
+        'brules_page_title' => 'Badge Rules',
+        'bRule_title'=>'Badges ',
+        'bRule_name' => 'Badge name:',
+        'bRule_rule' =>'Badge Rule',
+        'add_brule_button' => 'Add Rule',
+
 		'categories' => 'Categories',
 		'category_add_sub' => 'add sub-category',
 		'category_added' => 'Category added',
@@ -271,6 +278,11 @@
 		'widget_not_available' => 'This widget is not available. This could be because the plugin providing the widget is no longer installed.',
 		'widget_pages_explanation' => 'Show widget in this position on the following pages:',
 		'widgets_explanation' => 'Available widgets:',
+        //
+        'brule_saved' =>  'Badge rule saved',
+        'brule_added' =>  'Badge rule added',
+        'bRule_type' => 'Badge type',
+        'bRule_desc1' => 'Description (Optional)'
 	);
 	
 

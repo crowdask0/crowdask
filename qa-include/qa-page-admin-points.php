@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -120,9 +120,9 @@
 			$qa_content['script_rel'][]='qa-content/qa-admin.js?'.QA_VERSION;
 			$qa_content['script_var']['qa_warning_recalc']=qa_lang('admin/stop_recalc_warning');
 			
-			$qa_content['script_onloads'][]=array(
+ 			$qa_content['script_onloads'][]=array(
 				"qa_recalc_click('dorecalcpoints', document.getElementById('dosaverecalc'), null, 'recalc_ok');"
-			);
+			); 
 		}
 		
 		$qa_content['form']['buttons']['showdefaults']=array(
@@ -178,6 +178,7 @@
 	qa_array_insert($qa_content['form']['fields'], 'points_post_a', array('blank0' => array('type' => 'blank')));
 	qa_array_insert($qa_content['form']['fields'], 'points_vote_up_q', array('blank1' => array('type' => 'blank')));
 	qa_array_insert($qa_content['form']['fields'], 'points_multiple', array('blank2' => array('type' => 'blank')));
+	qa_array_insert($qa_content['form']['fields'], 'min_points_to_assign_bounty', array('blank3' => array('type' => 'blank')));
 	
 	
 	$qa_content['navigation']['sub']=qa_admin_sub_navigation();

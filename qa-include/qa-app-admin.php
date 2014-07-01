@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -283,11 +283,13 @@
 				'label' => qa_lang_html('admin/users_title'),
 				'url' => qa_path_html('admin/users'),
 			);
-			
-			$navigation['admin/layout']=array(
-				'label' => qa_lang_html('admin/layout_title'),
-				'url' => qa_path_html('admin/layout'),
-			);
+
+            if($level>=QA_USER_LEVEL_ADMIN){
+                $navigation['admin/layout']=array(
+                    'label' => qa_lang_html('admin/layout_title'),
+                    'url' => qa_path_html('admin/layout'),
+                );
+            }
 			
 			$navigation['admin/posting']=array(
 				'label' => qa_lang_html('admin/posting_title'),
@@ -309,6 +311,11 @@
 					'label' => qa_lang_html('admin/categories_title'),
 					'url' => qa_path_html('admin/categories'),
 				);
+
+            $navigation['admin/badges']=array(
+                'label'=>qa_lang_html('admin/bRule_title'),
+                'url'=>qa_path_html("admin/bRule"),
+            );
 			
 			$navigation['admin/permissions']=array(
 				'label' => qa_lang_html('admin/permissions_title'),
@@ -324,11 +331,11 @@
 				'label' => qa_lang_html('admin/feeds_title'),
 				'url' => qa_path_html('admin/feeds'),
 			);
-			
-			$navigation['admin/points']=array(
-				'label' => qa_lang_html('admin/points_title'),
-				'url' => qa_path_html('admin/points'),
-			);
+
+            $navigation['admin/points']=array(
+                'label' => qa_lang_html('admin/points_title'),
+                'url' => qa_path_html('admin/points'),
+            );
 			
 			$navigation['admin/spam']=array(
 				'label' => qa_lang_html('admin/spam_title'),
@@ -345,11 +352,12 @@
 					'label' => qa_lang_html('admin/mailing_title'),
 					'url' => qa_path_html('admin/mailing'),
 				);
-			
-			$navigation['admin/plugins']=array(
-				'label' => qa_lang_html('admin/plugins_title'),
-				'url' => qa_path_html('admin/plugins'),
-			);
+			if($level>=QA_USER_LEVEL_SUPER){
+                $navigation['admin/plugins']=array(
+                    'label' => qa_lang_html('admin/plugins_title'),
+                    'url' => qa_path_html('admin/plugins'),
+                );
+            }
 		}
 				
 		if (!qa_user_maximum_permit_error('permit_moderate')) {

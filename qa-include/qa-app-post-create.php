@@ -1,7 +1,7 @@
 <?php
 	
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -44,6 +44,62 @@
 		return $notify ? (empty($email) ? (isset($userid) ? '@' : null) : $email) : null;
 	}
 	
+	//
+	function qa_bounty_create($postid, $value, $assignedBy)
+	{
+		require_once QA_INCLUDE_DIR.'qa-db-selects.php';
+		$postid = qa_db_bounty_create($postid,$value,$assignedBy);
+		
+		return $postid;
+	}
+	
+	//
+	function qa_update_bounty_for_question($questionid, $bountyid, $bountyAwarded = 0)
+	{
+		qa_db_update_bounty_for_question($questionid, $bountyid, $bountyAwarded);
+	}
+	
+	//
+	function qa_assign_bounty($questionid, $assignedTo)
+	{		
+		$question = qa_db_select_with_pending(qa_db_full_post_selectspec(null,$questionid));
+		
+		$bountyid = $question['bountyid'];
+		
+		if($bountyid == null || $assignedTo == null)
+			return;
+		
+		$bounty = qa_db_get_bounty($bountyid);
+		
+		if($bounty != null){
+			$questionid = $bounty['postid'];
+			//update post table
+			qa_update_bounty_for_question($questionid, $bountyid, 1);
+			
+			//update bounty table
+			qa_db_assign_bounty($bountyid, $assignedTo);
+		}
+		
+	}
+	
+	//
+	function qa_get_bounty_options($min_bounty, $max_bounty, $inc_bounty)
+	{
+			
+		if($min_bounty <= 0 || $max_bounty <= 0 || $inc_bounty <=0 || $min_bounty > $max_bounty)
+			return array();
+		
+		define('MAX_BOUNTY_LEVELS', 10);
+		
+		if(($max_bounty - $min_bounty)/$inc_bounty > MAX_BOUNTY_LEVELS)
+			return array();
+		
+		$options = array();
+		for($iter = $min_bounty; $iter <= $max_bounty; $iter += $inc_bounty)
+			$options[''.$iter] = $iter;
+		
+		return $options;
+	}
 	
 	function qa_question_create($followanswer, $userid, $handle, $cookieid, $title, $content, $format, $text, $tagstring, $notify, $email,
 		$categoryid=null, $extravalue=null, $queued=false, $name=null)

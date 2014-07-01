@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -288,6 +288,9 @@
 				'amaxvote' => 'SMALLINT UNSIGNED NOT NULL DEFAULT 0', // highest netvotes of child answers (for questions)
 				'selchildid' => 'INT UNSIGNED', // selected answer (for questions)
 				'closedbyid' => 'INT UNSIGNED', // not null means question is closed
+
+                //by 
+                'closedvotesbyid' => 'INT UNSIGNED', // not null means vote is closed
 					// if closed due to being a duplicate, this is the postid of that other question
 					// if closed for another reason, that reason should be added as a comment on the question, and this field is the comment's id
 				'userid' => $useridcoltype, // which user wrote it
@@ -322,6 +325,8 @@
 				'KEY userid (userid, type, created)', // for recent questions, answers or comments by a user
 				'KEY selchildid (selchildid, type, created)', // for counting how many of a user's answers have been selected, unselected qs
 				'KEY closedbyid (closedbyid)', // for the foreign key constraint
+                //by 
+                'KEY closedvotesbyid (closedvotesbyid)', // for the foreign key constraint
 				'KEY catidpath1 (catidpath1, type, created)', // for getting question, answers or comments in a specific level category
 				'KEY catidpath2 (catidpath2, type, created)', // note that QA_CATEGORY_DEPTH=4
 				'KEY catidpath3 (catidpath3, type, created)',
@@ -338,7 +343,21 @@
 				'CONSTRAINT ^posts_ibfk_2 FOREIGN KEY (parentid) REFERENCES ^posts(postid)', // ^posts_ibfk_1 is set later on userid
 				'CONSTRAINT ^posts_ibfk_3 FOREIGN KEY (categoryid) REFERENCES ^categories(categoryid) ON DELETE SET NULL',
 				'CONSTRAINT ^posts_ibfk_4 FOREIGN KEY (closedbyid) REFERENCES ^posts(postid)',
+                'CONSTRAINT ^posts_ibfk_5 FOREIGN KEY (closedvotesbyid) REFERENCES ^posts(postid)',
 			),
+			
+			//
+			'bounty' => array(
+				'bountyid' => 'INT UNSIGNED NOT NULL AUTO_INCREMENT',
+				'postid' => '', //question id the bounty belongs to
+				'value' => '',
+				'assignedTo' => '',//user id who is rewarded
+				'created' => 'DATETIME', //when it was created
+				'assigned' => 'DATETIME',//when it was assigned
+				'PRIMARY KEY (bountyid)',
+				'CONSTRAINT ^bounty_ibfk_1 FOREIGN KEY (postid) REFERENCES ^posts(postid)',
+				'CONSTRAINT ^bounty_ibfk_2 FOREIGN KEY (assignedTo) REFERENCES ^users(userid)',
+            ),
 			
 			'blobs' => array(
 				'blobid' => 'BIGINT UNSIGNED NOT NULL',

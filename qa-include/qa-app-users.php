@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Question2Answer (c) Gideon Greenspan
+	Crowdask further on Question2Answer 1.6.2
 
 	http://www.question2answer.org/
 
@@ -36,6 +36,16 @@
 	define('QA_USER_LEVEL_MODERATOR', 80);
 	define('QA_USER_LEVEL_ADMIN', 100);
 	define('QA_USER_LEVEL_SUPER', 120);
+
+    /* added by :
+     * Self defined thresholds of points for these user levels
+     * Levels above will not follow points system
+     */
+    define('QA_USER_BASIC_POINTS',100);
+    define('QA_USER_APPROVED_POINTS',200);
+    define('QA_USER_EXPERT_POINTS',400);
+    define('QA_USER_EDITOR_POINTS',800);
+
 	
 	define('QA_USER_FLAGS_EMAIL_CONFIRMED', 1);
 	define('QA_USER_FLAGS_USER_BLOCKED', 2);
@@ -286,7 +296,9 @@
 		A new user is created based on $fields if it's a new combination of $source and $identifier
 	*/
 		{
-			if (qa_to_override(__FUNCTION__)) { $args=func_get_args(); return qa_call_override(__FUNCTION__, $args); }
+			if (qa_to_override(__FUNCTION__)) {
+                $args=func_get_args();
+                return qa_call_override(__FUNCTION__, $args); }
 		
 			require_once QA_INCLUDE_DIR.'qa-db-users.php';
 			
@@ -1147,6 +1159,128 @@ in a category for which they have elevated privileges).
 		
 		return (empty($silentproblems) && empty($reportproblems));
 	}
+
+//
+function qa_brule_keys(){
+    return array(
+        'points','qposts','aposts','cposts','aselects','aselecteds','qupvotes','qdownvotes','aupvotes','adownvotes','qvoteds','avoteds','upvoteds','downvoteds','bonus',
+    );
+}
+
+//validate brule definition
+function check_brule($long_def)
+{
+	$clauses = qa_brule_long_def($long_def);
+	
+	if($clauses == false)
+		return false;
+	
+ 	foreach($clauses as $clause){
+		if(qa_brule_tokens($clause) == false)
+			return false;
+	}
+	return true;
+}
+
+//
+//returns false if the long definition format is incorrect
+//returns an array of brule conjective forms otherwise
+function qa_brule_long_def($long_def)
+{
+	/*
+	 * The format of brule definition could either be
+	 * 1. clause
+	 * 2. (clause)
+	 * 3. (clause) || (clause)|| ...|| (clause) 
+	 */
+	//eliminate all white spaces
+	$long_def = preg_replace('/\s+/', '', $long_def);
+	
+	if(strlen($long_def) == 0)
+		return array();
+		
+	if(substr($long_def, 0,1) == "(")
+	{
+		$closeBracket = strpos($long_def, ")");
+		
+		if($closeBracket == false)
+			return false;
+		
+		//the brule only contains single clause	
+		if($closeBracket == strlen($long_def) - 1)
+			return array(substr($long_def, 1,strlen($long_def)-2));		
+		//the brule contains more than one clauses
+		elseif(substr($long_def, $closeBracket+1,2) != "||")
+				return false;
+			
+		//recursively find the clause array
+		$arr = qa_brule_long_def(substr($long_def, $closeBracket + 3));
+		$first_clause = substr($long_def, 1, $closeBracket - 1);
+		
+		array_splice($arr, 0, 0, $first_clause);
+		return $arr;
+
+	}else	
+		return array($long_def);
+}
+
+//
+//returns false if badge rule has incorrect format
+//otherwise return the badge rule with tokens form
+function qa_brule_tokens($brule)
+{
+    //first token
+    $pos = strpos($brule,'&&');
+
+    $token = ($pos == false)? trim($brule):trim(substr($brule,0,$pos));
+
+    if(strlen($token) == 0)
+        return false;
+    
+    $match_result = preg_match('/^(.*)(==|>=|>|<=|<)(.*)$/',$token,$matches);
+    if($match_result == 0 || $match_result == false)
+        return false;
+
+    $matches[1] = trim($matches[1]);
+    $matches[3] = trim($matches[3]);
+    
+    //the right hand is not 0
+    if($matches[3] != "0"){
+        $matches[3] = filter_var($matches[3],FILTER_VALIDATE_INT);
+        if($matches[3] == false)
+        	return false;
+    }else
+    {
+    	$matches[3] = 0;
+    }
+    
+    if(!in_array($matches[1],qa_brule_keys()) || !is_integer($matches[3]))
+        return false;
+
+    if($pos == false)
+        return array(
+            0 => array(
+                'var' => $matches[1],
+                'operator' => $matches[2],
+                'value' => $matches[3],),
+        );
+    
+    //recursion
+    $tails = substr($brule,$pos+2);
+    if($tails == false)
+        return false;
+    else{
+        $tokens = qa_brule_tokens($tails);
+        $num = sizeof($tokens);
+        $tokens[$num]= array(
+            'var' => $matches[1],
+            'operator' => $matches[2],
+            'value' => $matches[3],
+        );
+        return $tokens;
+    }
+}
+
 
 
 /*
