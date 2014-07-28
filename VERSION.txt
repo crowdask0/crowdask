@@ -1,1 +1,1 @@
-CrowdAsk 1.0.0, based on Question2Answer 1.6.2
+CrowdAsk 1.1.0, based on Question2Answer 1.6.2

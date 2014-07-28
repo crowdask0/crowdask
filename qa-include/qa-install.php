@@ -1,9 +1,9 @@
 <?php
 
 /*
-	Crowdask further on Question2Answer 1.6.2
+	Crowdask further on CrowdAsk 1.6.2
 
-	http://www.question2answer.org/
+	http://www.CrowdAsk.org/
 
 	
 	File: qa-include/qa-install.php
@@ -21,7 +21,7 @@
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	GNU General Public License for more details.
 
-	More about this license: http://www.question2answer.org/license.php
+	More about this license: http://www.CrowdAsk.org/license.php
 */
 
 	if (!defined('QA_VERSION')) { // don't allow this page to be requested directly from browser
@@ -90,16 +90,16 @@
 				break;
 			
 			case 'select':
-				$errorhtml.='Could not switch to the Question2Answer database. Please check the database name in the config file, and if necessary create the database in MySQL and grant appropriate user privileges.';
+				$errorhtml.='Could not switch to the CrowdAsk database. Please check the database name in the config file, and if necessary create the database in MySQL and grant appropriate user privileges.';
 				break;
 				
 			case 'query':
 				global $pass_failure_from_install;
 				
 				if (@$pass_failure_from_install)
-					$errorhtml.="Question2Answer was unable to perform the installation query below. Please check the user in the config file has CREATE and ALTER permissions:\n\n".qa_html($pass_failure_query."\n\nError ".$pass_failure_errno.": ".$pass_failure_error."\n\n");
+					$errorhtml.="CrowdAsk was unable to perform the installation query below. Please check the user in the config file has CREATE and ALTER permissions:\n\n".qa_html($pass_failure_query."\n\nError ".$pass_failure_errno.": ".$pass_failure_error."\n\n");
 				else
-					$errorhtml.="A Question2Answer database query failed when generating this page.\n\nA full description of the failure is available in the web server's error log file.";
+					$errorhtml.="A CrowdAsk database query failed when generating this page.\n\nA full description of the failure is available in the web server's error log file.";
 				break;
 		}
 
@@ -117,28 +117,28 @@
 					qa_db_page_move(qa_db_page_create(get_option('blogname'), QA_PAGE_FLAGS_EXTERNAL, get_option('home'), null, null, null), 'O', 1);
 						// create link back to WordPress home page
 					
-					$success.='Your Question2Answer database has been created and integrated with your WordPress site.';
+					$success.='Your CrowdAsk database has been created and integrated with your WordPress site.';
 
 				} else
-					$success.='Your Question2Answer database has been created for external user identity management. Please read the online documentation to complete integration.';
+					$success.='Your CrowdAsk database has been created for external user identity management. Please read the online documentation to complete integration.';
 			
 			} else
-				$success.='Your Question2Answer database has been created.';
+				$success.='Your CrowdAsk database has been created.';
 		}
 		
 		if (qa_clicked('nonuser')) {
 			qa_db_install_tables();
-			$success.='The additional Question2Answer database tables have been created.';
+			$success.='The additional CrowdAsk database tables have been created.';
 		}
 		
 		if (qa_clicked('upgrade')) {
 			qa_db_upgrade_tables();
-			$success.='Your Question2Answer database has been updated.';
+			$success.='Your CrowdAsk database has been updated.';
 		}
 
 		if (qa_clicked('repair')) {
 			qa_db_install_tables();
-			$success.='The Question2Answer database tables have been repaired.';
+			$success.='The CrowdAsk database tables have been repaired.';
 		}
 		
 		if (qa_clicked('module')) {
@@ -181,7 +181,7 @@
 				
 				qa_set_option('feedback_email', $inemail);
 				
-				$success.="Congratulations - Your Question2Answer site is ready to go!\n\nYou are logged in as the super administrator and can start changing settings.\n\nThank you for installing Question2Answer.";
+				$success.="Congratulations - Your CrowdAsk site is ready to go!\n\nYou are logged in as the super administrator and can start changing settings.\n\nThank you for installing CrowdAsk.";
 			}
 		}
 	}
@@ -194,17 +194,17 @@
 				if (@$pass_failure_errno==1146) // don't show error if we're in installation process
 					$errorhtml='';
 					
-				$errorhtml.='Welcome to Question2Answer. It\'s time to set up your database!';
+				$errorhtml.='Welcome to CrowdAsk, based on Question2Answer. It\'s time to set up your database!';
 
 				if (QA_FINAL_EXTERNAL_USERS) {
 					if (defined('QA_FINAL_WORDPRESS_INTEGRATE_PATH'))
-						$errorhtml.="\n\nWhen you click below, your Question2Answer site will be set up to integrate with the users of your WordPress site <a href=\"".qa_html(get_option('home'))."\" target=\"_blank\">".qa_html(get_option('blogname'))."</a>. Please consult the online documentation for more information.";
+						$errorhtml.="\n\nWhen you click below, your CrowdAsk site will be set up to integrate with the users of your WordPress site <a href=\"".qa_html(get_option('home'))."\" target=\"_blank\">".qa_html(get_option('blogname'))."</a>. Please consult the online documentation for more information.";
 					else
-						$errorhtml.="\n\nWhen you click below, your Question2Answer site will be set up to integrate with your existing user database and management. Users will be referenced with database column type ".qa_html(qa_get_mysql_user_column_type()).". Please consult the online documentation for more information.";
+						$errorhtml.="\n\nWhen you click below, your CrowdAsk site will be set up to integrate with your existing user database and management. Users will be referenced with database column type ".qa_html(qa_get_mysql_user_column_type()).". Please consult the online documentation for more information.";
 					
 					$buttons=array('create' => 'Create Database');
 				} else {
-					$errorhtml.="\n\nWhen you click below, your Question2Answer database will be set up to manage user identities and logins internally.\n\nIf you want to offer a single sign-on for an existing user base or website, please consult the online documentation before proceeding.";
+					$errorhtml.="\n\nWhen you click below, your CrowdAsk database will be set up to manage user identities and logins internally.\n\nIf you want to offer a single sign-on for an existing user base or website, please consult the online documentation before proceeding.";
 					$buttons=array('create' => 'Create Database including User Management');
 				}
 				break;
@@ -213,22 +213,22 @@
 				if (!@$pass_failure_from_install)
 					$errorhtml=''; // don't show error if we need to upgrade
 					
-				$errorhtml.='Your Question2Answer database needs to be upgraded for this version of the software.'; // don't show error before this
+				$errorhtml.='Your CrowdAsk database needs to be upgraded for this version of the software.'; // don't show error before this
 				$buttons=array('upgrade' => 'Upgrade Database');
 				break;
 				
 			case 'non-users-missing':
-				$errorhtml='This Question2Answer site is sharing its users with another Q2A site, but it needs some additional database tables for its own content. Please click below to create them.';
+				$errorhtml='This CrowdAsk site is sharing its users with another Q2A site, but it needs some additional database tables for its own content. Please click below to create them.';
 				$buttons=array('nonuser' => 'Create Tables');
 				break;
 				
 			case 'table-missing':
-				$errorhtml.='One or more tables are missing from your Question2Answer database.';
+				$errorhtml.='One or more tables are missing from your CrowdAsk database.';
 				$buttons=array('repair' => 'Repair Database');
 				break;
 				
 			case 'column-missing':
-				$errorhtml.='One or more Question2Answer database tables are missing a column.';
+				$errorhtml.='One or more CrowdAsk database tables are missing a column.';
 				$buttons=array('repair' => 'Repair Database');
 				break;
 				
@@ -236,7 +236,7 @@
 				require_once QA_INCLUDE_DIR.'qa-db-admin.php';
 	
 				if ( (!QA_FINAL_EXTERNAL_USERS) && (qa_db_count_users()==0) ) {
-					$errorhtml.="There are currently no users in the Question2Answer database.\n\nPlease enter your details below to create the super administrator:";
+					$errorhtml.="There are currently no users in the CrowdAsk database.\n\nPlease enter your details below to create the super administrator:";
 					$fields=array('handle' => 'Username:', 'password' => 'Password:', 'email' => 'Email address:');
 					$buttons=array('super' => 'Create Super Administrator');
 	
@@ -273,7 +273,7 @@
 	
 	if (empty($errorhtml)) {
 		if (empty($success))
-			$success='Your Question2Answer database has been checked with no problems.';
+			$success='Your CrowdAsk database has been checked with no problems.';
 		
 		$suggest='<a href="'.qa_path_html('admin', null, null, QA_URL_FORMAT_SAFEST).'">Go to admin center</a>';
 	}

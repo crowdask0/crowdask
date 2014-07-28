@@ -1,7 +1,7 @@
 <?php
 
 /*
-	Crowdask further on Question2Answer 1.6.2
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -278,7 +278,7 @@
 			
 			'posts' => array(
 				'postid' => 'INT UNSIGNED NOT NULL AUTO_INCREMENT',
-				'type' => "ENUM('Q', 'A', 'C', 'Q_HIDDEN', 'A_HIDDEN', 'C_HIDDEN', 'Q_QUEUED', 'A_QUEUED', 'C_QUEUED', 'NOTE') NOT NULL",
+				'type' => "ENUM('Q', 'A', 'C', 'Q_HIDDEN', 'A_HIDDEN', 'C_HIDDEN', 'Q_QUEUED', 'A_QUEUED', 'C_QUEUED', 'NOTE', 'NOTE2') NOT NULL",
 				'parentid' => 'INT UNSIGNED', // for follow on questions, all answers and comments
 				'categoryid' => 'INT UNSIGNED', // this is the canonical final category id
 				'catidpath1' => 'INT UNSIGNED', // the catidpath* columns are calculated from categoryid, for the full hierarchy of that category
@@ -287,12 +287,15 @@
 				'acount' => 'SMALLINT UNSIGNED NOT NULL DEFAULT 0', // number of answers (for questions)
 				'amaxvote' => 'SMALLINT UNSIGNED NOT NULL DEFAULT 0', // highest netvotes of child answers (for questions)
 				'selchildid' => 'INT UNSIGNED', // selected answer (for questions)
-				'closedbyid' => 'INT UNSIGNED', // not null means question is closed
+				'closedbyid' => 'INT(10) UNSIGNED', // not null means question is closed
 
-                //by 
-                'closedvotesbyid' => 'INT UNSIGNED', // not null means vote is closed
+                //by zhengyd
+                'closedvotesbyid' => 'INT(10) UNSIGNED', // not null means vote is closed
 					// if closed due to being a duplicate, this is the postid of that other question
-					// if closed for another reason, that reason should be added as a comment on the question, and this field is the comment's id
+					// if closed for another reason, that reason should be added as a comment on the question, and this field is the comment's id	
+				'bountyid' => 'INT(10) UNSIGNED DEFAULT NULL',
+				'bountyAwarded' => 'INT(10) UNSIGNED DEFAULT 0',
+				
 				'userid' => $useridcoltype, // which user wrote it
 				'cookieid' => 'BIGINT UNSIGNED', // which cookie wrote it, if an anonymous post
 				'createip' => 'INT UNSIGNED', // INET_ATON of IP address used to create the post
@@ -325,7 +328,7 @@
 				'KEY userid (userid, type, created)', // for recent questions, answers or comments by a user
 				'KEY selchildid (selchildid, type, created)', // for counting how many of a user's answers have been selected, unselected qs
 				'KEY closedbyid (closedbyid)', // for the foreign key constraint
-                //by 
+                //by zhengyd
                 'KEY closedvotesbyid (closedvotesbyid)', // for the foreign key constraint
 				'KEY catidpath1 (catidpath1, type, created)', // for getting question, answers or comments in a specific level category
 				'KEY catidpath2 (catidpath2, type, created)', // note that QA_CATEGORY_DEPTH=4
@@ -346,18 +349,36 @@
                 'CONSTRAINT ^posts_ibfk_5 FOREIGN KEY (closedvotesbyid) REFERENCES ^posts(postid)',
 			),
 			
-			//
+			//zhengyd
 			'bounty' => array(
-				'bountyid' => 'INT UNSIGNED NOT NULL AUTO_INCREMENT',
-				'postid' => '', //question id the bounty belongs to
-				'value' => '',
-				'assignedTo' => '',//user id who is rewarded
-				'created' => 'DATETIME', //when it was created
-				'assigned' => 'DATETIME',//when it was assigned
+				'bountyid' => 'INT(10) UNSIGNED NOT NULL AUTO_INCREMENT',
+				'postid' => 'INT(10) UNSIGNED NOT NULL', 
+				'value' => 'SMALLINT(10) UNSIGNED NOT NULL DEFAULT 0',
+				'assignedBy' => 'INT(10) UNSIGNED NOT NULL',
+				'assignedTo' => 'INT(10) UNSIGNED DEFAULT NULL',
+				'created' => 'DATETIME NOT NULL',
+				'assigned' => 'DATETIME DEFAULT NULL',
 				'PRIMARY KEY (bountyid)',
+				'KEY assignedBy(assignedBy)',
+				'KEY assignedTo(assignedTo)',
 				'CONSTRAINT ^bounty_ibfk_1 FOREIGN KEY (postid) REFERENCES ^posts(postid)',
-				'CONSTRAINT ^bounty_ibfk_2 FOREIGN KEY (assignedTo) REFERENCES ^users(userid)',
+				'CONSTRAINT ^bounty_ibfk_2 FOREIGN KEY (assignedBy) REFERENCES ^users(userid)',
+				'CONSTRAINT ^bounty_ibfk_3 FOREIGN KEY (assignedTo) REFERENCES ^users(userid) ON DELETE SET NULL',
             ),
+			
+			//zhengyd
+			'badgerules' => array(
+				'ruleid' => 'INT(10) UNSIGNED NOT NULL AUTO_INCREMENT',
+				'title' => 'VARCHAR(100) DEFAULT NULL',
+				'content' => 'VARCHAR(1000) DEFAULT NULL',
+				'type' => "ENUM('GOLD', 'SILVER', 'BRONZE') NOT NULL",
+				'desc1' => 'VARCHAR(1000) DEFAULT NULL',
+				'PRIMARY KEY (ruleid)',
+				'KEY title (title)',
+				'KEY content (content)',
+				'KEY type (type)',
+				'KEY desc1 (desc1)',
+			),
 			
 			'blobs' => array(
 				'blobid' => 'BIGINT UNSIGNED NOT NULL',
@@ -452,6 +473,11 @@
 				'upvoteds' => 'INT NOT NULL DEFAULT 0', // number of up votes received on this user's questions or answers
 				'downvoteds' => 'INT NOT NULL DEFAULT 0', // number of down votes received on this user's questions or answers
 				'bonus' => 'INT NOT NULL DEFAULT 0', // bonus assigned by administrator to a user
+				
+				//zhengyd
+				'bountyOut' => 'INT(10) SIGNED NOT NULL DEFAULT 0',
+				'bountyIn' =>  'INT(10) UNSIGNED NOT NULL DEFAULT 0',
+				
 				'PRIMARY KEY (userid)',
 				'KEY points (points)',
 			),

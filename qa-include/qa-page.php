@@ -26,10 +26,12 @@
 
 	//redirect http request to https request
 	
+	/*
 	if(!isset($_SERVER['HTTPS']) || $_SERVER['HTTPS'] == ""){
 		$redirect = "https://".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 		header("Location: $redirect");
 	}
+	*/
 
 	if (!defined('QA_VERSION')) { // don't allow this page to be requested directly from browser
 		header('Location: ../');

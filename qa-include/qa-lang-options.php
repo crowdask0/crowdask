@@ -67,7 +67,7 @@
 		'default_privacy' => 'Privacy: Your email address will not be shared or sold to third parties.',
 		'default_sidebar' => "Some Welcome Messages Here.",
 		'default_subject' => 'A message from ^',
-		'default_suffix' => 'Q&A',
+		'default_suffix' => 'Crowdask',
 		'do_ask_check_qs' => 'Check for similar questions when asking:',
 		'do_close_on_select' => 'Close questions with a selected answer:',
 		'do_complete_tags' => 'Show matching tags while typing:',

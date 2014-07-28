@@ -357,7 +357,7 @@
 			'show_user_points' => 1,
 			'show_user_titles' => 1,
 			'show_when_created' => 1,
-			'site_theme' => 'Snow',
+			'site_theme' => 'School',
 			'smtp_port' => 25,
 			'sort_answers_by' => 'created',
 			'tags_or_categories' => 'tc',
