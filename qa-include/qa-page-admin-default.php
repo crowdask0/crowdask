@@ -534,9 +534,10 @@
 			$showoptions=array();
 			
 			$getoptions=qa_get_options(array('feedback_enabled', 'permit_post_q', 'permit_post_a', 'permit_post_c'));
-			
+
+            //zhengyd
 			if (!QA_FINAL_EXTERNAL_USERS)
-				array_push($showoptions, 'confirm_user_emails', 'confirm_user_required', 'moderate_users', 'approve_user_required', 'register_notify_admin', 'suspend_register_users', '');
+				array_push($showoptions, 'confirm_user_emails', 'confirm_user_required', 'moderate_users', 'approve_user_required', 'approve_exception_list','register_notify_admin', 'suspend_register_users', '');
 			
 			$captchamodules=qa_list_modules('captcha');
 			
@@ -600,6 +601,7 @@
 			$checkboxtodisplay=array(
 				'confirm_user_required' => 'option_confirm_user_emails',
 				'approve_user_required' => 'option_moderate_users',
+                'approve_exception_list' => 'option_moderate_users',
 				'captcha_on_unapproved' => 'option_moderate_users',
 				'captcha_on_unconfirmed' => 'option_confirm_user_emails && !(option_moderate_users && option_captcha_on_unapproved)',
 				'captcha_module' => 'option_captcha_on_register || option_captcha_on_anon_post || (option_confirm_user_emails && option_captcha_on_unconfirmed) || (option_moderate_users && option_captcha_on_unapproved) || option_captcha_on_reset_password || option_captcha_on_feedback',
@@ -708,7 +710,12 @@
 						require_once QA_INCLUDE_DIR.'qa-app-limits.php';
 						$optionvalue=implode(' , ', qa_block_ips_explode($optionvalue));
 						break;
-						
+
+                    case 'approve_exception_list':
+                        require_once QA_INCLUDE_DIR.'qa-app-users.php';
+                        $optionvalue=implode(' , ', local_approve_exception_list_explode($optionvalue));
+                        break;
+
 					case 'block_bad_words':
 						require_once QA_INCLUDE_DIR.'qa-util-string.php';
 						$optionvalue=implode(' , ', qa_block_words_explode($optionvalue));
@@ -1288,6 +1295,12 @@
 					$optionfield['rows']=4;
 					$optionfield['note']=qa_lang_html('admin/block_ips_note');
 					break;
+
+                case 'approve_exception_list':
+                    $optionfield['style']='tall';
+                    $optionfield['rows']=2;
+                    $optionfield['note']=qa_lang_html('admin/approve_exception_list_note');
+                    break;
 					
 				case 'allow_view_q_bots':
 					$optionfield['note']=$optionfield['label'];

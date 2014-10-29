@@ -37,7 +37,7 @@
 	define('QA_USER_LEVEL_ADMIN', 100);
 	define('QA_USER_LEVEL_SUPER', 120);
 
-    /* added by :
+    /* added by zhengyd:
      * Self defined thresholds of points for these user levels
      * Levels above will not follow points system
      */
@@ -288,6 +288,87 @@
 				qa_report_event('u_logout', $olduserid, $oldhandle, qa_cookie_get());
 			}
 		}
+
+        //zhengyd
+        function qa_approval_exception($email)
+        /*
+         * Check whether $email belongs to approval_exception list
+         * */
+        {
+            $exception_list = trim(qa_opt('approve_exception_list'));
+
+            if(empty($exception_list))
+                return false;
+
+            $domains = local_exception_tolist($exception_list);
+
+            foreach($domains as $domain)
+            {
+                if(local_validate_email($email, $domain))
+                    return true;
+            }
+
+            return false;
+        }
+
+        //zhengyd
+        function local_exception_tolist($list)
+        {
+
+            $domains = explode(",", $list);
+            $size = count($domains);
+            for($i = 0; $i < $size; $i++)
+            {
+                $domains[$i] = trim($domains[$i]);
+            }
+
+            return $domains;
+        }
+
+        //zhengyd
+        function local_validate_email($email, $domain)
+        {
+            if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+                return false;
+
+            $at_pos = strpos($email, "@");
+
+            if($at_pos == false)
+                return false;
+
+            $domain_pos = strpos($email, $domain);
+
+            if($domain_pos == false || $domain_pos <= $at_pos)
+                return false;
+
+            return true;
+        }
+
+        //zhengyd
+        function local_approve_exception_list_explode($domainstring)
+        /* return valid domains as array*/
+        {
+            $pieces = explode(",", $domainstring);
+            $result = array();
+
+            foreach($pieces as $piece)
+            {
+                $piece = trim($piece);
+                if(!empty($piece) && local_is_a_domain($piece))
+                    array_push($result, $piece);
+            }
+
+            return $result;
+        }
+
+        //zhengyd
+        function local_is_a_domain($domain)
+        /* check whether it is a valid domain */
+        {
+            return (preg_match('/^([a-z\d](-*[a-z\d])*)(\.([a-z\d](-*[a-z\d])*))*$/i', $domain) //valid chars check
+                && preg_match('/^.{1,253}$/', $domain) //overall length check
+                && preg_match('/^[^\.]{1,63}(\.[^\.]{1,63})*$/', $domain)   );
+        }
 		
 		
 		function qa_log_in_external_user($source, $identifier, $fields)
@@ -333,9 +414,17 @@
 							unset($fields['confirmed']);
 						}
 					}
-					
-					$userid=qa_create_new_user((string)@$fields['email'], null /* no password */, $handle,
-						isset($fields['level']) ? $fields['level'] : QA_USER_LEVEL_BASIC, @$fields['confirmed']);
+
+                    //zhengyd
+                    // If approve user required, we need to check against exception list
+                    // Those users under exception list are not required to be approved
+                    $level_0 = isset($fields['level']) ? $fields['level'] : QA_USER_LEVEL_BASIC;
+
+                    $userid=qa_create_new_user((string)@$fields['email'], null /* no password */, $handle,
+                        $level_0, @$fields['confirmed']);
+
+                    if(qa_opt('moderate_users') && qa_opt('approve_user_required') && qa_approval_exception((string)@$fields['email']))
+                        qa_set_user_level($userid, $handle, QA_USER_LEVEL_APPROVED, $level_0);
 					
 					qa_db_user_login_add($userid, $source, $identifier);
 					qa_db_user_login_sync(false);
@@ -1160,7 +1249,7 @@ in a category for which they have elevated privileges).
 		return (empty($silentproblems) && empty($reportproblems));
 	}
 
-//
+//zhengyd
 function qa_brule_keys(){
     return array(
         'points','qposts','aposts','cposts','aselects','aselecteds','qupvotes','qdownvotes','aupvotes','adownvotes','qvoteds','avoteds','upvoteds','downvoteds','bonus',
@@ -1182,7 +1271,7 @@ function check_brule($long_def)
 	return true;
 }
 
-//
+//zhengyd
 //returns false if the long definition format is incorrect
 //returns an array of brule conjective forms otherwise
 function qa_brule_long_def($long_def)
@@ -1224,7 +1313,7 @@ function qa_brule_long_def($long_def)
 		return array($long_def);
 }
 
-//
+//zhengyd
 //returns false if badge rule has incorrect format
 //otherwise return the badge rule with tokens form
 function qa_brule_tokens($brule)

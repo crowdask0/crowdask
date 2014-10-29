@@ -48,6 +48,8 @@
 		'avatar_store_size' => 'Maximum size for storing avatars:',
 		'avatar_users_size' => 'Avatar size on top users page:',
 		'block_bad_words' => 'Censored words - separate by spaces or commas:',
+        //zhengyd
+        'approve_exception_list' => 'All new users must be approved - except the following domains:',
 		'block_ips_write' => 'Blocked IP addresses - separate by spaces or commas:',
 		'captcha_module' => 'Use captcha module:',
 		'captcha_on_anon_post' => 'Use captcha for anonymous posts:',
@@ -222,7 +224,7 @@
 		'points_vote_down_q' => 'Voting down a question:',
 		'points_vote_up_a' => 'Voting up an answer:',
 		'points_vote_up_q' => 'Voting up a question:',
-		//by 
+		//by zhengyd
 		'min_points_to_assign_bounty' => 'Minimal points requirement for creating a bounty:',
 		'max_bounty' => 'Maximal bounty points:',
 		'min_bounty' => 'Minimal bounty points:',

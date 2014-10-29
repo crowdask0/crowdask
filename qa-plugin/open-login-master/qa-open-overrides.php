@@ -84,7 +84,7 @@ function qa_log_in_external_user($source, $identifier, $fields)
 	 * 'yahoo-xyt' when logging in with the other.
 	 */
 	
-	//by 
+	//by zhengyd
 	//must include this in order to be compatible with cas-login
 	require_once QA_PLUGIN_DIR.'open-login-master/qa-open-utils.php';
 
@@ -122,9 +122,17 @@ function qa_log_in_external_user($source, $identifier, $fields)
 					unset($fields['email']); 
 				}
 			}
-			
-			$userid=qa_create_new_user((string)@$fields['email'], null /* no password */, $handle,
-				isset($fields['level']) ? $fields['level'] : QA_USER_LEVEL_BASIC, @$fields['confirmed']);
+
+            //zhengyd
+            require_once QA_INCLUDE_DIR.'qa-app-users.php';
+
+            $level_0 = isset($fields['level']) ? $fields['level'] : QA_USER_LEVEL_BASIC;
+
+            $userid=qa_create_new_user((string)@$fields['email'], null /* no password */, $handle,
+                $level_0, @$fields['confirmed']);
+
+            if(qa_opt('moderate_users') && qa_opt('approve_user_required') && qa_approval_exception((string)@$fields['email']))
+                qa_set_user_level($userid, $handle, QA_USER_LEVEL_APPROVED, $level_0);
 			
 			qa_db_user_set($userid, 'oemail', $oemail);
 			qa_db_user_login_add($userid, $source, $identifier);
