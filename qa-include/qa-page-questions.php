@@ -157,7 +157,7 @@
 		$questions, // questions
 		qa_opt('page_size_qs'), // questions per page
 		$start, // start offset
-		count($questions), // total count
+		$countslugs ? $categories[$categoryid]['qcount'] : qa_opt('cache_qcount'), // total count
 		$sometitle, // title if some questions
 		$nonetitle, // title if no questions
 		$categories, // categories for navigation
