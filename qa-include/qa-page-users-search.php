@@ -42,10 +42,8 @@
         exit;
 
 //	Get list of all users
-	$start=qa_get_start();
-	$usercount=qa_opt('cache_userpointscount');
 	$pagesize=qa_opt('page_size_users');
-    $users=qa_db_select_with_pending(qa_db_top_users_selectspec($start, $usercount));
+    $users = qa_db_select_with_pending(qa_db_all_users_selectspec());
 
 //	Prepare content for theme
 	
@@ -91,7 +89,7 @@
                         : qa_get_user_avatar_html($user['flags'], $user['email'], $user['handle'],
                             $user['avatarblobid'], $user['avatarwidth'], $user['avatarheight'], qa_opt('avatar_users_size'), true)
                     ).' '.$usershtml[$user['userid']],
-                    'score' => qa_html(number_format($user['points'])),
+                    //'score' => qa_html(number_format($user['points'])),
                 );
         } else
             $qa_content['title'] = 'No results found';

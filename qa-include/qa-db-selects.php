@@ -1302,6 +1302,23 @@
 		);
 	}
 
+	//zhengyd
+    function qa_db_all_users_selectspec()
+    {
+        // obtain all users
+        if (QA_FINAL_EXTERNAL_USERS)
+            // zhengyd
+            // Im ignore the external users case
+            // fix it in case you need it
+            return null;
+        else
+            return array(
+                'columns' => array('userid', 'handle', 'flags', 'email', 'avatarblobid' => 'BINARY avatarblobid', 'avatarwidth', 'avatarheight'),
+                'source' => '^users WHERE email is not null and email != "" ',
+                'arraykey' => 'userid',
+                'sortdesc' => 'email',
+            );
+    }
 	
 	function qa_db_top_users_selectspec($start, $count=null)
 /*
