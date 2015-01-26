@@ -451,6 +451,8 @@
 			'users' => 'qa-page-users.php',
 			'users/blocked' => 'qa-page-users-blocked.php',
 			'users/special' => 'qa-page-users-special.php',
+            //zhengyd
+            'users/search' => 'qa-page-users-search.php',
 		);
 	}
 	

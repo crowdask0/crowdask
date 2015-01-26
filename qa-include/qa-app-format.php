@@ -275,9 +275,9 @@ function qa_post_html_fields($post, $userid, $cookieid, $usershtml, $dummy, $opt
     $favoritedview=@$options['favoritedview'];
     $favoritemap=$favoritedview ? qa_get_favorite_non_qs_map() : array();
 
-    //
+    //zhengyd
     //Add bounty information to questions
-    if($post['type']=='Q' && $post['bountyid'] != null && $post['bountyAwarded'] == 0)
+    if($post['type']=='Q' && $post['bountyid'] != null && $post['bountyawarded'] == 0)
     {
     	$bounty = qa_db_select_with_pending(qa_db_bounty_selectspec($post['bountyid']));
     	$fields['bounty'] = $bounty['value'];
@@ -501,14 +501,14 @@ function qa_post_html_fields($post, $userid, $cookieid, $usershtml, $dummy, $opt
             }
         }
 
-        /* Added by 
+        /* Added by zhengyd
         * If the question is closed for votes, it does not accept vote
         */
         if(isset($post['closedvotesbyid']))
             $fields['vote_state']='disabled';
 
         /*
-         * Added by 
+         * Added by zhengyd
          * If it is an answer and its parent is closed for voting, then close vote for it
          */
         if($isanswer)
@@ -1226,8 +1226,8 @@ function qa_category_navigation_sub($parentcategories, $parentid, $selecteds, $p
                 'categoryid' => $category['categoryid'],
                 'favorited' => @$favoritemap['category'][$category['backpath']],
             );
-    
-    // 
+			
+			
     // Non-categorized questions
     if (!isset($parentid))
     {
@@ -1255,6 +1255,12 @@ function qa_users_sub_navigation()
             'users$' => array(
                 'url' => qa_path_html('users'),
                 'label' => qa_lang_html('main/highest_users'),
+            ),
+
+            //zhengyd, add search page tab
+            'users/search' => array(
+                'label' =>qa_lang('users/search_users'),
+                'url' => qa_path_html('users/search'),
             ),
 
             'users/special' => array(
@@ -1325,7 +1331,7 @@ function qa_account_sub_navigation()
             'label' => qa_lang_html('misc/nav_my_details'),
             'url' => qa_path_html('account'),
         ),
-    	//
+    	//zhengyd
     	'change-password' => array(
     		'label' => 'Change password',
     		'url' => qa_path_html('change-password'),
@@ -1476,7 +1482,7 @@ function qa_get_tags_field_value($fieldname)
         return array_unique(qa_string_to_words($text, true, false, false, false));
 }
 
-//
+//zhengyd
 function qa_set_up_bounty_field(&$qa_content,&$field,$fieldname)
 {
 	

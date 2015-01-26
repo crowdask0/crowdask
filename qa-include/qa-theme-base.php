@@ -454,6 +454,21 @@
 				'</div>'
 			);
 		}
+		//zhengyd
+        // users search box
+        function users_search()
+        {
+            $this->output(
+'<div>
+<form method="get" action="./index.php">
+<input name="qa" value="users" type="hidden">
+<input name="qa_1" value="search" type="hidden">
+<input name="q" value="" class="qa-search-field" type="text">
+<input value="Search" class="qa-search-button" type="submit">
+</form>
+</div><br>'
+            );
+        }
 		
 		function search()
 		{
@@ -605,6 +620,7 @@
 			}
 		}
 		
+		
 		function nav_link($navlink, $class)
 		{
 			if (isset($navlink['url']))
@@ -641,7 +657,7 @@
 			$this->output_split(@$this->content['loggedin'], 'qa-logged-in', 'div');
 		}
 
-        //
+        //zhengyd
         function display_badge_summary()
         {
 
@@ -659,7 +675,7 @@
 		{
 			$this->output('<div class="qa-sidepanel">');
 
-			//
+			//zhengyd
 			if ($this->template!='admin' && $this->template!='ask' &&$this->template!='users'  &&$this->template!='categories')
 				$this->output_raw(@$this->content['sidepanel']);
 			
@@ -710,6 +726,9 @@
 
 			/*if (isset($content['main_form_tags']))
 				$this->output('<form '.$content['main_form_tags'].'>');*/
+
+            if($content['search-users'])
+                $this->users_search();
 				
 			$this->main_parts($content);
 		
@@ -1540,7 +1559,7 @@
 			$this->output(
 				'<div class="qa-q-item-title">',
 				'<a href="'.$q_item['url'].'">');
-			//
+			//zhengyd
 			if(isset($q_item['bounty']))
 				$this->output(
 					'<div class="bounty-indicator" title="this question has an open bounty worth 20 reputation" >'.
@@ -1981,7 +2000,7 @@
 					
 				$this->q_view_main($q_view);
 				
-				//
+				//zhengyd
 				//Add Bounty information
 				$this->q_view_bounty($q_view);
 				$this->q_view_clear();
