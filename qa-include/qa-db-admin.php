@@ -177,7 +177,47 @@
 		else
 			return array();
 	}
-	
+
+    //zhengyd
+    function qa_db_get_unapproved_users_numbers($keyword)
+    {
+        $keyword = strtolower($keyword);
+
+        $results=qa_db_read_all_assoc(qa_db_query_sub(
+            "SELECT ^users.userid, UNIX_TIMESTAMP(created) AS created, INET_NTOA(createip) AS createip, email, handle, title, content FROM ^users LEFT JOIN ^userprofile ON ^users.userid=^userprofile.userid AND LENGTH(content)>0 WHERE level<# AND NOT (flags&#) AND (LOWER(^users.email) like $ or LOWER(^users.handle) like $) ORDER BY created DESC",
+            QA_USER_LEVEL_APPROVED, QA_USER_FLAGS_USER_BLOCKED, '%'.$keyword.'%', '%'.$keyword.'%'
+        ));
+        return count($results);
+    }
+
+    // zhengyd
+    function qa_db_get_unapproved_users_match_keyword($start, $count, $keyword)
+    {
+        $keyword = strtolower($keyword);
+
+        $results=qa_db_read_all_assoc(qa_db_query_sub(
+            "SELECT ^users.userid, UNIX_TIMESTAMP(created) AS created, INET_NTOA(createip) AS createip, email, handle, title, content FROM ^users LEFT JOIN ^userprofile ON ^users.userid=^userprofile.userid AND LENGTH(content)>0 WHERE level<# AND NOT (flags&#) AND (LOWER(^users.email) like $ or LOWER(^users.handle) like $) ORDER BY created DESC LIMIT #,#",
+            QA_USER_LEVEL_APPROVED, QA_USER_FLAGS_USER_BLOCKED, '%'.$keyword.'%', '%'.$keyword.'%', $start, $count
+        ));
+
+        $users=array();
+
+        foreach ($results as $result) {
+            $userid=$result['userid'];
+
+            if (!isset($users[$userid])) {
+                $users[$result['userid']]=$result;
+                $users[$result['userid']]['profile']=array();
+                unset($users[$userid]['title']);
+                unset($users[$userid]['content']);
+            }
+
+            if (isset($result['title']) && isset($result['content']))
+                $users[$userid]['profile'][$result['title']]=$result['content'];
+        }
+
+        return $users;
+    }
 	
 	function qa_db_get_unapproved_users($count)
 /*

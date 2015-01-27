@@ -41,9 +41,17 @@
 
 //	Find most flagged questions, answers, comments
 
-	$userid=qa_get_logged_in_userid();
-	
-	$users=qa_db_get_unapproved_users(qa_opt('page_size_users'));
+    $start=qa_get_start();
+    $pagesize=qa_opt('page_size_users');
+
+    $userid=qa_get_logged_in_userid();
+
+    $search = trim(qa_get('q_1'));
+    $inquery = trim(qa_get('q_2'));
+    if(!isset($inquery))
+        $inquery = "";
+
+    $users=qa_db_get_unapproved_users_match_keyword($start,$pagesize,$inquery);
 	$userfields=qa_db_select_with_pending(qa_db_userfields_selectspec());
 
 
@@ -66,6 +74,7 @@
 	$qa_content=qa_content_prepare();
 
 	$qa_content['title']=qa_lang_html('admin/approve_users_title');
+
 	$qa_content['error']=isset($pageerror) ? $pageerror : qa_admin_page_error();
 	
 	$qa_content['message_list']=array(
@@ -79,8 +88,9 @@
 		
 		'messages' => array(),
 	);
-	
-	
+
+
+
 	if (count($users)) {
 		foreach ($users as $user) {
 			$message=array();
@@ -121,7 +131,9 @@
 			);
 			
 			$qa_content['message_list']['messages'][]=$message;
-		}
+
+            $qa_content['admin-search-users'] = 2;
+        }
 		
 	} else
 		$qa_content['title']=qa_lang_html('admin/no_unapproved_found');
@@ -130,6 +142,14 @@
 	$qa_content['navigation']['sub']=qa_admin_sub_navigation();
 	$qa_content['script_rel'][]='qa-content/qa-admin.js?'.QA_VERSION;
 
+    //zhengyd
+    $usercount = qa_db_get_unapproved_users_numbers($inquery);
+    $qa_content['page_links']=qa_html_page_links(qa_request(), $start, $pagesize, $usercount, qa_opt('pages_prev_next'),
+        array(
+            'q_1' => 'search',
+            'q_2' => $inquery,
+        )
+    );
 	
 	return $qa_content;
 	

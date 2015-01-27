@@ -456,18 +456,34 @@
 		}
 		//zhengyd
         // users search box
-        function users_search()
+        // default: the search box is under Users tab
+        // 1: the search box is under Admin -> Approve users tab
+        function users_search($admin_search_users = 0)
         {
-            $this->output(
-'<div>
-<form method="get" action="./index.php">
-<input name="qa" value="users" type="hidden">
-<input name="qa_1" value="search" type="hidden">
-<input name="q" value="" class="qa-search-field" type="text">
-<input value="Search" class="qa-search-button" type="submit">
-</form>
-</div><br>'
-            );
+            if($admin_search_users == 1)
+            {
+                $this->output(
+    '<div>
+    <form method="get" action="./index.php">
+    <input name="qa" value="admin" type="hidden">
+    <input name="qa_1" value="approve" type="hidden">
+    <input name="q_1" value="search" type="hidden">
+    <input name="q_2" value="" class="qa-search-field" type="text">
+    <input value="Search" class="qa-search-button" type="submit">
+    </form>
+    </div><br>'
+                );
+            }else
+                $this->output(
+    '<div>
+    <form method="get" action="./index.php">
+    <input name="qa" value="users" type="hidden">
+    <input name="qa_1" value="search" type="hidden">
+    <input name="q" value="" class="qa-search-field" type="text">
+    <input value="Search" class="qa-search-button" type="submit">
+    </form>
+    </div><br>'
+                );
         }
 		
 		function search()
@@ -726,6 +742,9 @@
 
 			/*if (isset($content['main_form_tags']))
 				$this->output('<form '.$content['main_form_tags'].'>');*/
+
+            if($content['admin-search-users'] == 2)
+                $this->users_search(1);
 
             if($content['search-users'])
                 $this->users_search();
