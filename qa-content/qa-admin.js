@@ -1,5 +1,5 @@
 /*
-	Crowdask further on Question2Answer 1.6.2
+	Question2Answer (c) Gideon Greenspan
 
 	http://www.question2answer.org/
 
@@ -108,6 +108,59 @@ function qa_mailing_start(noteid, pauseid)
 			}
 		}
 	);
+}
+
+//zhengyd
+//select all checkboxes when checked is 1
+//unselect all checkboxes when checked is 0
+function qa_admin_approve_select_all(target, checked)
+{
+    var $form = $(target).closest('form');
+
+    if($form != null)
+    {
+        var checkboxes = $form.find('input');
+
+        for(var i = 0; i < checkboxes.length; i++)
+        {
+            if(checked == 1)
+            {
+                if(checkboxes[i].type == 'checkbox')
+                    $(checkboxes[i]).prop('checked', true);
+            }else
+            {
+                if(checkboxes[i].type == 'checkbox')
+                    $(checkboxes[i]).prop('checked', false);
+            }
+        }
+    }
+    return false;
+}
+
+//zhengyd
+function qa_admin_approve_selected(target)
+{
+    $form = $(target).closest('form');
+
+    if($form != null)
+    {
+        $rows = $form.find('.approve_entry_row');
+
+        for(var i = 0; i < $rows.length; i++)
+        {
+            var row = $rows[i];
+            var checkbox = $(row).find('.approve_entry_row_checkbox')[0];
+
+            if($(checkbox).is(':checked'))
+            {
+                var approve_button = $(row).find('.qa-form-light-button-approve')[0];
+
+                qa_admin_click(approve_button);
+            }
+        }
+    }
+
+    return false;
 }
 
 function qa_admin_click(target)

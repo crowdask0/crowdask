@@ -1414,6 +1414,7 @@
 					$this->output('<form '.$list['form']['tags'].'>');
 					unset($list['form']['tags']); // we already output the tags before the messages
 					$this->message_list_form($list);
+                    $this->output('<br>');
 				}
 					
 				$this->message_list($list);
@@ -1447,10 +1448,23 @@
 		
 		function message_item($message)
 		{
-			$this->output('<div class="qa-message-item" '.@$message['tags'].'>');
-			$this->message_content($message);
-			$this->post_avatar_meta($message, 'qa-message');
-			$this->message_buttons($message);
+			$this->output('<div style="display: table" class="qa-message-item" '.@$message['tags'].'>');
+            //zhengyd
+            $this->output("<table class='approve_entry_row' style='width:100%'><tr><td>");
+            $this->output(
+                "<input class='approve_entry_row_checkbox' name='option_notify_admin_q_post' id='' class='qa-form-tall-checkbox' type=checkbox>"
+            );
+
+            $this->output("</td><td>");
+
+            $this->output("<div style = 'float: left; padding-left: 5%'>");
+            $this->message_content($message);
+            $this->post_avatar_meta($message, 'qa-message');
+            $this->message_buttons($message);
+            $this->output("</div>");
+
+            $this->output("</td></tr></table>"
+            );
 			$this->output('</div> <!-- END qa-message-item -->', '');
 		}
 		

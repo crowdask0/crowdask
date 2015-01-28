@@ -76,24 +76,46 @@
 	$qa_content['title']=qa_lang_html('admin/approve_users_title');
 
 	$qa_content['error']=isset($pageerror) ? $pageerror : qa_admin_page_error();
-	
-	$qa_content['message_list']=array(
-		'form' => array(
-			'tags' => 'method="post" action="'.qa_self_html().'"',
 
-			'hidden' => array(
-				'code' => qa_get_form_security_code('admin/click'),
-			),
-		),
-		
-		'messages' => array(),
-	);
 
+    // zhengyd
+    $qa_content['message_list']=array(
+        'form' => array(
+            'tags' => 'method="post" action="'.qa_self_html().'"',
+
+            'hidden' => array(
+                'code' => qa_get_form_security_code('admin/click'),
+            ),
+            'buttons' => array(
+                'select_all' => array(
+                    'tags' => 'name="select_all" class="qa-form-tall-button qa-form-tall-button-reset" onclick="return qa_admin_approve_select_all(this, 1); "',
+                    'label' => 'Select All',
+                ),
+
+                'unselect_all' => array(
+                    'tags' => 'name="unselect_all" class="qa-form-tall-button qa-form-tall-button-reset" onclick="return qa_admin_approve_select_all(this,0);"',
+                    'label' => 'Unselect All',
+                ),
+                'approve_selected' => array(
+                    'tags' => 'name="approve_selected" class="qa-form-tall-button qa-form-tall-button-save" onclick="return qa_admin_approve_selected(this);"',
+                    'label' => 'Approve Selected'
+                ),
+            ),
+        ),
+
+        'messages' => array(),
+    );
+
+    // hide select buttons if there are no pending users
+    if(count($users) == 0)
+        unset($qa_content['message_list']['form']['buttons']);
 
 
 	if (count($users)) {
 		foreach ($users as $user) {
 			$message=array();
+
+            $message['checkbox'] = 1;
 			
 			$message['tags']='id="p'.qa_html($user['userid']).'"'; // use p prefix for qa_admin_click() in qa-admin.js
 						
