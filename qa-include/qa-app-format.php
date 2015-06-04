@@ -277,7 +277,7 @@ function qa_post_html_fields($post, $userid, $cookieid, $usershtml, $dummy, $opt
 
     //zhengyd
     //Add bounty information to questions
-    if($post['type']=='Q' && $post['bountyid'] != null && $post['bountyawarded'] == 0)
+    if($post['type']=='Q' && $post['bountyid'] != null && $post['bountyAwarded'] == 0)
     {
     	$bounty = qa_db_select_with_pending(qa_db_bounty_selectspec($post['bountyid']));
     	$fields['bounty'] = $bounty['value'];
